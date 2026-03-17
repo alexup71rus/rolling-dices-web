@@ -302,11 +302,52 @@ public/
     4d/  …
     5d/  …
     6d/  …
+  models/
+    dice.glb     ← single die mesh (used for all 6 instances)
+    board.glb    ← rolling board / tray
+  textures/
+    face_1.png … face_6.png  ← rotation-invariant face textures (pip style)
 ```
 
 ---
 
-## 8. UI Layout
+## 8. 3D Assets
+
+All current geometry (BoxGeometry + canvas-drawn textures) is placeholder. Before the animation recording session, proper assets must be in place — the animation library captures the real meshes.
+
+### Dice Model (`public/models/dice.glb`)
+
+- A single die mesh exported as GLB. All 6 instances share the same geometry; materials are swapped per-instance at runtime.
+- Geometry: standard rounded-corner cube (chamfered edges), ~1k–3k triangles. Size normalised to fit the existing physics body (~0.5 unit side).
+- UVs: each face mapped to its own UV island so face textures apply cleanly.
+- Sources (in priority order):
+  1. **Blender** — model from scratch or use a free CC0 die mesh, add chamfer, UV-unwrap per face, export GLB.
+  2. **Sketchfab / Kenney.nl** — search for CC0/CC-BY die assets; Kenney's "Dice Pack" is a known free option.
+  3. **Three.js procedural** — RoundedBoxGeometry as a last resort if no suitable GLB is available before recording.
+
+### Face Textures (`public/textures/face_N.png`)
+
+- One texture per face value (1–6), 256×256 px minimum.
+- Style: pip dots on white/ivory background, or engraved look on coloured background — must be **rotation-invariant** (no text, centred dot layout).
+- Can be hand-drawn in Figma/Photoshop or generated (e.g., via a canvas script that outputs PNGs).
+- Special die types (Lucky 🍀, Unlucky 💀, Biased 🎯) use the same face textures; their visual distinction comes from **die body colour** (material `color` tint), not different textures.
+
+### Board Model (`public/models/board.glb`)
+
+- A shallow rectangular tray / rolling surface, roughly 10×10 units to contain up to 6 dice.
+- Geometry: simple low-poly tray with raised edges, wood or felt material texture baked in.
+- Replaces the current flat `PlaneGeometry` + invisible walls.
+- Sources: model in Blender or find a CC0 dice tray / tabletop asset.
+
+### Integration Notes
+
+- Loaded via `THREE.GLTFLoader` in `DiceRenderer.ts` and `sceneSetup.ts`.
+- Die mesh is cloned (`mesh.clone()`) for each of the 6 instances; materials are cloned per-instance.
+- The existing `createDiceMaterials()` / `createFaceTexture()` in `diceLogic/textures.ts` is replaced by loading `face_N.png` into `THREE.TextureLoader`.
+
+---
+
+## 9. UI Layout
 
 ### SetupScreen
 - Goal selector: 3 cards (2000 / 3000 / 4000), one selected at a time.
