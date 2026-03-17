@@ -3,6 +3,7 @@ import { component$, noSerialize, useContext, useSignal, useVisibleTask$ } from 
 import { GameContext } from './gameState';
 import { detectCombinations, scoreCombinations } from './scoring';
 import type { TurnPhase } from './GameSceneController';
+import type { GameSceneController } from './GameSceneController';
 import './GameScreen.css';
 
 export const GameScreen = component$(() => {
@@ -15,9 +16,10 @@ export const GameScreen = component$(() => {
 
   useVisibleTask$(async ({ cleanup }) => {
     if (!canvasRef.value) return;
+    let ctrl: GameSceneController | null = null;
     try {
       const { createGameSceneController } = await import('./GameSceneController');
-      controllerRef.value = noSerialize(await createGameSceneController(
+      ctrl = await createGameSceneController(
         canvasRef.value,
         store,
         (p: TurnPhase) => {
@@ -27,15 +29,101 @@ export const GameScreen = component$(() => {
             setTimeout(() => { farkleButtonVisible.value = true; }, 2000);
           }
         },
-      ));
+      );
+      controllerRef.value = noSerialize(ctrl);
     } catch (err) {
       sceneError.value = err instanceof Error ? err.message : 'Failed to initialize 3D scene';
       phase.value = 'idle';
       controllerRef.value = null;
     }
 
+    // Keyboard handler
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!ctrl) return;
+      const p = ctrl.getPhase();
+      const isSelecting = p === 'selecting' || p === 'hot-dice';
+      const key = e.key.toLowerCase();
+
+      // ESC — deselect all
+      if (e.key === 'Escape' && isSelecting) {
+        e.preventDefault();
+        ctrl.deselectAll();
+        return;
+      }
+
+      // Arrow/WASD navigation
+      if ((key === 'arrowleft' || key === 'a') && isSelecting) {
+        e.preventDefault();
+        ctrl.moveFocus('left');
+        return;
+      }
+      if ((key === 'arrowright' || key === 'd') && isSelecting) {
+        e.preventDefault();
+        ctrl.moveFocus('right');
+        return;
+      }
+      if ((key === 'arrowup' || key === 'w') && isSelecting) {
+        e.preventDefault();
+        ctrl.moveFocus('up');
+        return;
+      }
+      if ((key === 'arrowdown' || key === 's') && isSelecting) {
+        e.preventDefault();
+        ctrl.moveFocus('down');
+        return;
+      }
+
+      // Enter / Space — toggle selection on focused die
+      if ((e.key === 'Enter' || e.key === ' ') && isSelecting) {
+        e.preventDefault();
+        ctrl.toggleFocusedSelection();
+        return;
+      }
+
+      // N — new game
+      if (key === 'n') {
+        e.preventDefault();
+        store.screen = 'setup';
+        return;
+      }
+
+      // E — score and roll again (commit + roll)
+      if (key === 'e' && (p === 'idle' || isSelecting)) {
+        e.preventDefault();
+        // Simulate clicking the roll button
+        document.querySelector<HTMLButtonElement>('.btn-roll:not(.btn-disabled)')?.click();
+        return;
+      }
+
+      // F — end turn (bank) or next turn (farkle)
+      if (key === 'f') {
+        if (isSelecting) {
+          e.preventDefault();
+          document.querySelector<HTMLButtonElement>('.btn-bank:not(.btn-disabled)')?.click();
+          return;
+        }
+        if (p === 'farkle' && farkleButtonVisible.value) {
+          e.preventDefault();
+          ctrl.startNextTurn();
+          return;
+        }
+      }
+
+      // Farkle phase — Enter/Space to continue
+      if (p === 'farkle' && farkleButtonVisible.value) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          ctrl.startNextTurn();
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
     cleanup(() => {
-      controllerRef.value?.dispose?.();
+      window.removeEventListener('keydown', onKeyDown);
+      ctrl?.dispose?.();
       controllerRef.value = null;
     });
   });
@@ -111,11 +199,10 @@ export const GameScreen = component$(() => {
           <button
             class="btn-new-game"
             onClick$={() => {
-              // Basic reset just by navigating back to setup. The setup start button handles state reset anyway.
               store.screen = 'setup';
             }}
           >
-            Новая игра
+            Новая игра <kbd class="kbd-hint">N</kbd>
           </button>
         </div>
 
@@ -175,7 +262,7 @@ export const GameScreen = component$(() => {
               class="btn btn-farkle"
               onClick$={() => { controllerRef.value?.startNextTurn(); }}
             >
-              → Следующий ход
+              → Следующий ход <kbd class="kbd-hint">F</kbd>
             </button>
           )}
 
@@ -201,6 +288,7 @@ export const GameScreen = component$(() => {
                   : activeDiceState.every(d => d.selected)
                     ? `Бросить все (${store.diceState.length})`
                     : `Бросить снова (${activeDiceState.filter(d => !d.selected).length})`}
+                {' '}<kbd class="kbd-hint">E</kbd>
               </button>
 
               <button
@@ -209,7 +297,7 @@ export const GameScreen = component$(() => {
                   if (store.turnScore > 0 || hasValidSelection) controllerRef.value?.bankTurn();
                 }}
               >
-                ✓ Завершить ход
+                ✓ Завершить ход <kbd class="kbd-hint">F</kbd>
               </button>
             </>
           )}

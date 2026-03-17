@@ -1,10 +1,10 @@
 // src/game/SetupScreen.tsx
-import { component$, useContext, useStore } from '@builder.io/qwik';
+import { component$, useContext, useSignal, useStore, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from './gameState';
 import type { DieType } from './diceModifiers';
 
 const DIE_TYPES: { type: DieType; icon: string; label: string; description: string }[] = [
-  { type: 'normal',   icon: '⚀', label: 'Обычный',      description: 'Равные шансы' },
+  { type: 'normal',   icon: '🎲', label: 'Обычный',      description: 'Равные шансы' },
   { type: 'biased-1', icon: '🎯', label: 'На единицу',   description: '×3 шанс на 1' },
   { type: 'biased-5', icon: '🎯', label: 'На пятёрку',   description: '×3 шанс на 5' },
   { type: 'lucky',    icon: '🍀', label: 'Счастливый',   description: '+20% к нужной' },
@@ -17,6 +17,80 @@ export const SetupScreen = component$(() => {
   const store = useContext(GameContext);
   const counts = useStore<Record<DieType, number>>({
     'normal': 6, 'biased-1': 0, 'biased-5': 0, 'lucky': 0, 'unlucky': 0,
+  });
+  /** Index of the focused die-type row (-1 = none focused). */
+  const focusedRow = useSignal(-1);
+
+  useVisibleTask$(({ cleanup }) => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const key = e.key;
+      // Enter — start game
+      if (key === 'Enter') {
+        e.preventDefault();
+        document.querySelector<HTMLButtonElement>('.setup-start-btn')?.click();
+        return;
+      }
+      // Left/Right arrows — cycle target (when no row focused) or adjust count
+      const targets: (2000 | 3000 | 4000)[] = [2000, 3000, 4000];
+      const currentIdx = targets.indexOf(store.target);
+
+      // Up/Down — navigate modifier rows
+      if (key === 'ArrowDown') {
+        e.preventDefault();
+        focusedRow.value = Math.min(focusedRow.value + 1, DIE_TYPES.length - 1);
+        return;
+      }
+      if (key === 'ArrowUp') {
+        e.preventDefault();
+        focusedRow.value = Math.max(focusedRow.value - 1, -1);
+        return;
+      }
+
+      // Left/Right — when a row is focused, adjust its count; otherwise cycle target
+      if (focusedRow.value >= 0) {
+        const dieType = DIE_TYPES[focusedRow.value].type;
+        if (dieType !== 'normal') {
+          if (key === 'ArrowLeft') {
+            e.preventDefault();
+            if (counts[dieType] > 0) {
+              counts[dieType]--;
+              const nn = counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+              counts['normal'] = 6 - nn;
+            }
+            return;
+          }
+          if (key === 'ArrowRight') {
+            e.preventDefault();
+            const nn = counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+            if (nn < 6) {
+              counts[dieType]++;
+              counts['normal'] = 6 - (nn + 1);
+            }
+            return;
+          }
+        }
+        return; // consume arrow left/right even for normal row
+      }
+
+      if (key === 'ArrowLeft' && currentIdx > 0) {
+        e.preventDefault();
+        store.target = targets[currentIdx - 1];
+        return;
+      }
+      if (key === 'ArrowRight' && currentIdx < targets.length - 1) {
+        e.preventDefault();
+        store.target = targets[currentIdx + 1];
+        return;
+      }
+
+      // Escape — clear row focus
+      if (key === 'Escape') {
+        focusedRow.value = -1;
+        return;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    cleanup(() => window.removeEventListener('keydown', onKeyDown));
   });
 
   const nonNormalCount =
@@ -55,13 +129,12 @@ export const SetupScreen = component$(() => {
 
         {/* Dice configurator */}
         <div style="margin-bottom:24px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="margin-bottom:10px;">
             <div style="font-size:12px;color:#d4d4d8;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.5);">Кубики</div>
-            <div style="font-size:13px;color:#fbbf24;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);">{Object.values(counts).reduce((s, n) => s + n, 0)} / 6</div>
           </div>
 
-          {DIE_TYPES.map(({ type, icon, label, description }) => (
-            <div key={type} style={`background:${type === 'normal' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.05)'};border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:background 0.2s ease;`}>
+          {DIE_TYPES.map(({ type, icon, label, description }, rowIdx) => (
+            <div key={type} style={`background:${focusedRow.value === rowIdx ? 'rgba(217,119,6,0.3)' : type === 'normal' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.05)'};border:${focusedRow.value === rowIdx ? '1px solid rgba(251,191,36,0.6)' : '1px solid rgba(255,255,255,0.08)'};border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all 0.15s ease;`}>
               <span style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));">{icon}</span>
               <div style="flex:1;">
                 <div style={`font-size:14px;font-weight:500;color:${type === 'normal' ? '#d4d4d8' : '#fff'};text-shadow:0 1px 2px rgba(0,0,0,0.4);`}>{label}</div>
@@ -110,6 +183,7 @@ export const SetupScreen = component$(() => {
 
         {/* Start button */}
         <button
+          class="setup-start-btn"
           style="width:100%;padding:16px;font-size:16px;background:linear-gradient(to bottom, #d97706, #b45309);color:#fff;border:1px solid #f59e0b;border-radius:10px;cursor:pointer;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.4);box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.2s ease;"
           onMouseOver$={(e) => (e.target as HTMLElement).style.filter='brightness(1.1)'}
           onMouseOut$={(e) => (e.target as HTMLElement).style.filter='brightness(1)'}
@@ -128,7 +202,7 @@ export const SetupScreen = component$(() => {
             store.screen = 'game';
           }}
         >
-          ▶ Бросить кости
+          ▶ Бросить кости <kbd style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;font-family:system-ui;font-weight:600;">Enter</kbd>
         </button>
       </div>
     </div>

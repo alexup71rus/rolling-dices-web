@@ -12,11 +12,13 @@ export interface DiceMeshEntry {
   body: CANNON.Body;
   baseMaterials: THREE.Material[]; // slot-indexed, unmodified
   highlightMesh?: THREE.Mesh;
+  hoverMesh?: THREE.Mesh;
 }
 
 let cachedDieGeometry: THREE.BufferGeometry | null = null;
 let cachedBaseMaterials: THREE.Material[] | null = null;
 let cachedHighlightMaterial: THREE.Material | null = null;
+let cachedHoverMaterial: THREE.Material | null = null;
 
 function getHighlightMaterial(): THREE.Material {
   if (cachedHighlightMaterial) return cachedHighlightMaterial;
@@ -53,6 +55,42 @@ function getHighlightMaterial(): THREE.Material {
   });
 
   return cachedHighlightMaterial;
+}
+
+function getHoverMaterial(): THREE.Material {
+  if (cachedHoverMaterial) return cachedHoverMaterial;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.clearRect(0, 0, 128, 128);
+    // Softer, darker circle for hover/focus indicator
+    ctx.strokeStyle = '#a67c00';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(64, 64, 54, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(166, 124, 0, 0.3)';
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.arc(64, 64, 54, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  cachedHoverMaterial = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    opacity: 0.5,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  return cachedHoverMaterial;
 }
 
 function createFallbackMaterials(): THREE.Material[] {
@@ -119,7 +157,9 @@ export async function createDiceEntries(
   const entries: DiceMeshEntry[] = [];
   
   const highlightMat = getHighlightMaterial();
+  const hoverMat = getHoverMaterial();
   const highlightGeo = new THREE.PlaneGeometry(0.8, 0.8);
+  const hoverGeo = new THREE.PlaneGeometry(0.85, 0.85);
 
   for (let i = 0; i < count; i++) {
     const clonedMats = materials.map(m => m.clone());
@@ -133,23 +173,31 @@ export async function createDiceEntries(
     highlightMesh.visible = false;
     scene.add(highlightMesh);
 
+    const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
+    hoverMesh.rotation.x = -Math.PI / 2;
+    hoverMesh.visible = false;
+    scene.add(hoverMesh);
+
     const shape = new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25));
     const body = new CANNON.Body({ mass: 1, shape });
     body.position.set((Math.random() - 0.5) * 4, 5, (Math.random() - 0.5) * 4);
     world.addBody(body);
 
-    entries.push({ mesh, body, baseMaterials: clonedMats, highlightMesh });
+    entries.push({ mesh, body, baseMaterials: clonedMats, highlightMesh, hoverMesh });
   }
 
   return entries;
 }
 
 export function syncMeshesToBodies(entries: DiceMeshEntry[]): void {
-  for (const { mesh, body, highlightMesh } of entries) {
+  for (const { mesh, body, highlightMesh, hoverMesh } of entries) {
     mesh.position.copy(body.position as unknown as THREE.Vector3);
     mesh.quaternion.copy(body.quaternion as unknown as THREE.Quaternion);
     if (highlightMesh) {
       highlightMesh.position.set(mesh.position.x, 0.015, mesh.position.z);
+    }
+    if (hoverMesh) {
+      hoverMesh.position.set(mesh.position.x, 0.012, mesh.position.z);
     }
   }
 }
@@ -159,11 +207,14 @@ export function removeDiceFromScene(
   scene: THREE.Scene,
   world: CANNON.World,
 ): void {
-  for (const { mesh, body, highlightMesh } of entries) {
+  for (const { mesh, body, highlightMesh, hoverMesh } of entries) {
     scene.remove(mesh);
     world.removeBody(body);
     if (highlightMesh) {
       scene.remove(highlightMesh);
+    }
+    if (hoverMesh) {
+      scene.remove(hoverMesh);
     }
   }
 }

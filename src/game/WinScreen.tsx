@@ -1,9 +1,20 @@
 // src/game/WinScreen.tsx
-import { component$, useContext } from '@builder.io/qwik';
+import { component$, useContext, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from './gameState';
 
 export const WinScreen = component$(() => {
   const store = useContext(GameContext);
+
+  useVisibleTask$(({ cleanup }) => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        document.querySelector<HTMLButtonElement>('.win-play-again-btn')?.click();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    cleanup(() => window.removeEventListener('keydown', onKeyDown));
+  });
 
   return (
     <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui, -apple-system, sans-serif;">
@@ -20,6 +31,7 @@ export const WinScreen = component$(() => {
           <div style="width:100%;height:100%;background:linear-gradient(90deg, #22c55e, #10b981);border-radius:3px;box-shadow:0 0 8px rgba(34,197,94,0.5);" />
         </div>
         <button
+          class="win-play-again-btn"
           style="width:100%;padding:16px;font-size:16px;background:linear-gradient(to bottom, #d97706, #b45309);color:#fff;border:1px solid #f59e0b;border-radius:10px;cursor:pointer;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.4);box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.2s ease;"
           onMouseOver$={(e) => (e.target as HTMLElement).style.filter='brightness(1.1)'}
           onMouseOut$={(e) => (e.target as HTMLElement).style.filter='brightness(1)'}
@@ -36,7 +48,7 @@ export const WinScreen = component$(() => {
             }));
           }}
         >
-          🔄 Играть снова
+          🔄 Играть снова <kbd style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;font-family:system-ui;font-weight:600;">N</kbd>
         </button>
       </div>
     </div>
