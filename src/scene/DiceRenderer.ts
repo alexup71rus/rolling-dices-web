@@ -15,6 +15,14 @@ export interface DiceMeshEntry {
 let cachedDieGeometry: THREE.BufferGeometry | null = null;
 let cachedBaseMaterials: THREE.MeshStandardMaterial[] | null = null;
 
+function createFallbackMaterials(): THREE.MeshStandardMaterial[] {
+  // Keep distinct faces even when texture assets are missing.
+  const fallbackColors = [0xd9d9d9, 0xcfcfcf, 0xe3e3e3, 0xc6c6c6, 0xededed, 0xbdbdbd];
+  return FACE_ORDER.map((_, slot) =>
+    new THREE.MeshStandardMaterial({ color: fallbackColors[slot] })
+  );
+}
+
 async function loadDieAssets(): Promise<{
   geometry: THREE.BufferGeometry;
   materials: THREE.MeshStandardMaterial[];
@@ -23,18 +31,23 @@ async function loadDieAssets(): Promise<{
     return { geometry: cachedDieGeometry, materials: cachedBaseMaterials };
   }
 
-  const loader = new THREE.TextureLoader();
-  const textures = await Promise.all(
-    [1, 2, 3, 4, 5, 6].map(n => loader.loadAsync(`/textures/face_${n}.png`))
-  );
+  let materials: THREE.MeshStandardMaterial[];
+  try {
+    const loader = new THREE.TextureLoader();
+    const textures = await Promise.all(
+      [1, 2, 3, 4, 5, 6].map(n => loader.loadAsync(`/textures/face_${n}.png`))
+    );
 
-  const faceToMat = textures.map(tex => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return new THREE.MeshStandardMaterial({ map: tex });
-  });
+    const faceToMat = textures.map(tex => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return new THREE.MeshStandardMaterial({ map: tex });
+    });
 
-  // Arrange into slot order: slot i → material for FACE_ORDER[i]
-  const materials = FACE_ORDER.map(face => faceToMat[face - 1].clone());
+    // Arrange into slot order: slot i → material for FACE_ORDER[i]
+    materials = FACE_ORDER.map(face => faceToMat[face - 1].clone());
+  } catch {
+    materials = createFallbackMaterials();
+  }
 
   // Load die geometry from GLB; fallback to BoxGeometry
   let geometry: THREE.BufferGeometry;

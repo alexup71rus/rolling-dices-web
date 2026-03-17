@@ -10,21 +10,33 @@ export const GameScreen = component$(() => {
   const phase = useSignal<TurnPhase>('idle');
   const farkleButtonVisible = useSignal(false);
   const controllerRef = useSignal<any>(null);
+  const sceneError = useSignal<string>('');
 
-  useVisibleTask$(async () => {
+  useVisibleTask$(async ({ cleanup }) => {
     if (!canvasRef.value) return;
-    const { createGameSceneController } = await import('./GameSceneController');
-    controllerRef.value = await createGameSceneController(
-      canvasRef.value,
-      store,
-      (p: TurnPhase) => {
-        phase.value = p;
-        if (p === 'farkle') {
-          farkleButtonVisible.value = false;
-          setTimeout(() => { farkleButtonVisible.value = true; }, 2000);
-        }
-      },
-    );
+    try {
+      const { createGameSceneController } = await import('./GameSceneController');
+      controllerRef.value = await createGameSceneController(
+        canvasRef.value,
+        store,
+        (p: TurnPhase) => {
+          phase.value = p;
+          if (p === 'farkle') {
+            farkleButtonVisible.value = false;
+            setTimeout(() => { farkleButtonVisible.value = true; }, 2000);
+          }
+        },
+      );
+    } catch (err) {
+      sceneError.value = err instanceof Error ? err.message : 'Failed to initialize 3D scene';
+      phase.value = 'idle';
+      controllerRef.value = null;
+    }
+
+    cleanup(() => {
+      controllerRef.value?.dispose?.();
+      controllerRef.value = null;
+    });
   });
 
   // Derive active dice (not set aside)
@@ -55,6 +67,12 @@ export const GameScreen = component$(() => {
           ref={canvasRef}
           style="width:100%;height:100%;"
         />
+
+        {sceneError.value && (
+          <div style="position:absolute;left:16px;bottom:16px;background:rgba(120,20,20,0.9);color:#fecaca;border:1px solid #7f1d1d;border-radius:8px;padding:8px 10px;font-size:11px;max-width:380px;">
+            3D scene error: {sceneError.value}
+          </div>
+        )}
 
         {/* Set-aside strip */}
         {setAsideDice().length > 0 && (
@@ -166,6 +184,7 @@ export const GameScreen = component$(() => {
               <button
                 style={`width:100%;padding:9px;font-size:12px;border:none;border-radius:6px;cursor:pointer;background:${phase.value === 'idle' ? '#1d4ed8' : (hasSelection() ? '#1d4ed8' : '#1e3a5f')};color:#fff;`}
                 onClick$={async () => {
+                  if (!controllerRef.value) return;
                   if (phase.value === 'selecting' && hasSelection()) {
                     const remaining = activeDiceState().filter(d => !d.selected).map(d => d.meshIndex);
                     if (remaining.length > 0) {
