@@ -921,9 +921,14 @@ export function saveAnimationPlugin(): Plugin {
         const groupDir = path.join(publicDir, `${data.diceCount}d`);
         fs.mkdirSync(groupDir, { recursive: true });
 
-        // Determine next animation index
+        // Determine next animation index (based on highest existing index, not count,
+        // so manually deleted files do not cause overwrites)
         const existing = fs.readdirSync(groupDir).filter(f => f.endsWith('.json'));
-        const nextIndex = existing.length + 1;
+        const maxIdx = existing.reduce((max, f) => {
+          const m = f.match(/(\d+)\.json$/);
+          return m ? Math.max(max, parseInt(m[1])) : max;
+        }, 0);
+        const nextIndex = maxIdx + 1;
         const filename = `anim_${data.diceCount}d_${String(nextIndex).padStart(3, '0')}.json`;
         fs.writeFileSync(path.join(groupDir, filename), JSON.stringify(data, null, 2));
 
@@ -1186,7 +1191,8 @@ export const StudioScreen = component$(() => {
           </button>
 
           <button
-            style="padding:8px;font-size:12px;border-radius:4px;border:none;cursor:pointer;background:#15803d;color:#fff;"
+            disabled={!isRecording.value}
+            style={`padding:8px;font-size:12px;border-radius:4px;border:none;cursor:${isRecording.value ? 'pointer' : 'default'};background:#15803d;color:#fff;opacity:${isRecording.value ? '1' : '0.4'};`}
             onClick$={async () => {
               if (!isRecording.value) return;
               isRecording.value = false;
