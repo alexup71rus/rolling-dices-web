@@ -30,7 +30,7 @@ describe('full turn simulation', () => {
     expect(pts).toBe(2000);
     expect(isFarkle(values)).toBe(false);
 
-    state.diceState.forEach((d, i) => { d.selected = true; });
+    state.diceState.forEach(d => { d.selected = true; });
     commitSelection(state, pts);
     expect(state.turnScore).toBe(2000);
 

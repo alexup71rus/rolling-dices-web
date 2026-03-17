@@ -8,20 +8,7 @@ import {
   endTurn,
   nextTurn,
   resetForHotDice,
-  type TurnState,
-  type DiceRollState,
 } from './gameState';
-
-function makeDice(values: number[], setAside = false): DiceRollState[] {
-  return values.map((v, i) => ({
-    value: v,
-    selected: false,
-    setAside,
-    scoreContribution: 0,
-    dieType: 'normal' as const,
-    meshIndex: i,
-  }));
-}
 
 describe('createInitialTurnState', () => {
   it('creates 6 dice in unrolled state', () => {

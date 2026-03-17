@@ -56,7 +56,6 @@ describe('applyModifiers', () => {
 
   it('higher power modifier runs first', () => {
     const dice = [createDie('normal')];
-    const calls: number[] = [];
     // Use boost with side-effect tracking via power ordering
     applyModifiers(dice, [
       { power: 1, targetDiceIndices: [0], effectType: 'boost', params: { face: 1, amount: 1 } },
@@ -115,7 +114,10 @@ describe('rollDice', () => {
   it('all values are 1–6', () => {
     const dice = Array.from({ length: 6 }, () => createDie('normal'));
     const result = rollDice(dice);
-    result.forEach(v => expect(v).toBeGreaterThanOrEqual(1) && expect(v).toBeLessThanOrEqual(6));
+    result.forEach(v => {
+      expect(v).toBeGreaterThanOrEqual(1);
+      expect(v).toBeLessThanOrEqual(6);
+    });
   });
 
   it('blocked face never appears (weight=0)', () => {
