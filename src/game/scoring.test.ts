@@ -1,6 +1,6 @@
 // src/game/scoring.test.ts
 import { describe, expect, it } from 'vitest';
-import { detectCombinations, scoreCombinations } from './scoring';
+import { detectCombinations, isHotDice, isFarkle, scoreCombinations } from './scoring';
 
 describe('detectCombinations', () => {
   it('detects single 1', () => {
@@ -94,5 +94,31 @@ describe('scoreCombinations', () => {
 
   it('returns 0 for empty', () => {
     expect(scoreCombinations([])).toBe(0);
+  });
+});
+
+describe('isFarkle', () => {
+  it('returns true when no scoring combinations', () => {
+    expect(isFarkle([2, 3, 4, 6])).toBe(true);
+  });
+
+  it('returns false when single 1 present', () => {
+    expect(isFarkle([1, 2, 3, 4])).toBe(false);
+  });
+
+  it('returns false when triple present', () => {
+    expect(isFarkle([2, 2, 2, 4])).toBe(false);
+  });
+});
+
+describe('isHotDice', () => {
+  it('returns true when all active dice are in scoring combos', () => {
+    // triple 1s + triple 5s = all 6 dice score
+    expect(isHotDice([1, 1, 1, 5, 5, 5], [0, 1, 2, 3, 4, 5])).toBe(true);
+  });
+
+  it('returns false when some active dice are non-scoring', () => {
+    // single 1, but dice 1-3 are 2,3,4 — non-scoring
+    expect(isHotDice([1, 2, 3, 4], [0, 1, 2, 3])).toBe(false);
   });
 });
