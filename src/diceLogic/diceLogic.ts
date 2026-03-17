@@ -1,9 +1,9 @@
 // diceLogic/diceLogic.ts
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import { sceneSettings, diceSettings } from "./settings";
+import { sceneSettings } from "./settings";
 import { createWalls } from "./walls";
-import { createDice, rigDiceToFace, getRolledFace } from "./dice";
+import { createDice, getRolledFace, rigDiceToFace } from "./dice";
 
 export function initSceneWrapper(
   canvas: HTMLCanvasElement,
@@ -111,13 +111,19 @@ export function initSceneWrapper(
         diceItem.selected = !diceItem.selected;
         console.log(`Кубик ${diceIndex}: selected = ${diceItem.selected}`);
         // Изменяем emissive у материалов
-        const setEmissiveColor = (mesh: THREE.Mesh, color: number) => {
-          if (Array.isArray(mesh.material)) {
-            mesh.material.forEach((mat) => {
-              (mat as THREE.MeshPhongMaterial).emissive.set(color);
+        const setEmissiveColor = (object: THREE.Object3D, color: number) => {
+          if (!(object instanceof THREE.Mesh)) {
+            return;
+          }
+
+          if (Array.isArray(object.material)) {
+            object.material.forEach((mat: THREE.Material) => {
+              if (mat instanceof THREE.MeshPhongMaterial) {
+                mat.emissive.set(color);
+              }
             });
-          } else {
-            (mesh.material as THREE.MeshPhongMaterial).emissive.set(color);
+          } else if (object.material instanceof THREE.MeshPhongMaterial) {
+            object.material.emissive.set(color);
           }
         };
         if (diceItem.selected) {
@@ -149,7 +155,7 @@ export function initSceneWrapper(
       localStorage.getItem("specialDiceSettings") || "[]",
     );
 
-    dice.forEach((die, index) => {
+    dice.forEach((die) => {
       die.body.position.set(
         (Math.random() - 0.5) * 4,
         5,

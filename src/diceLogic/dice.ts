@@ -80,8 +80,8 @@ export function rigDiceToFace(
         return;
       }
       if (attempts-- <= 0) {
-        console.log(
-          `Кубик ${index}: не удалось стабилизировать на нужной грани`,
+        console.warn(
+          `Кубик ${index}: не удалось стабилизировать на нужной грани ${targetFace}. Текущая грань ${currentFace}`,
         );
         clearInterval(interval);
         return;
@@ -169,8 +169,8 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
   );
 
   for (let i = 0; i < diceSettings.numberOfDice; i++) {
-    const geo = new THREE.BoxGeometry(1, 1, 1);
-    let materials = baseMaterials.map((mat, index) => {
+    const geo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    let materials = baseMaterials.map((mat) => {
       return mat.clone(); // По умолчанию копируем стандартные материалы с текстурами
     });
 
@@ -202,7 +202,7 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
     mesh.userData.diceIndex = i;
     scene.add(mesh);
 
-    const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
+    const shape = new CANNON.Box(new CANNON.Vec3(0.3, 0.3, 0.3));
     const body = new CANNON.Body({ mass: 1, shape });
     body.position.set((Math.random() - 0.5) * 4, 5, (Math.random() - 0.5) * 4);
     world.addBody(body);

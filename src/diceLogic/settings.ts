@@ -34,7 +34,7 @@ export const sceneSettings = {
 
 export const diceSettings = {
   numberOfDice: 6, // Количество кубиков на доске
-  impulseStrength: 5, // Сила импульса
+  impulseStrength: 4, // Сила импульса
   torqueStrength: 2, // Сила крутящего момента
   selectedEmissive: 0xaaaaaa, // Цвет выделения
   defaultEmissive: 0x000000, // Цвет по умолчанию

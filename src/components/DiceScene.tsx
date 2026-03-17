@@ -1,51 +1,55 @@
 import {
+  $,
   component$,
+  noSerialize,
+  type NoSerialize,
   useSignal,
   useVisibleTask$,
-  $,
-  useTask$,
 } from "@builder.io/qwik";
 import { initSceneWrapper } from "../diceLogic/diceLogic";
 import { SpecialDiceModal } from "./SpecialDiceModal";
+import "./DiceScene.css";
+
+type SpecialDiceEntry = { face: number; attempts: number };
+type SceneApi = ReturnType<typeof initSceneWrapper>;
 
 export const DiceScene = component$(() => {
-  const rollDiceFn = useSignal<(() => void) | null>(null);
-  const setAsideFn = useSignal<(() => number[]) | null>(null);
-  const canvasRef = useSignal<HTMLCanvasElement | null>(null);
+  const sceneApi = useSignal<NoSerialize<SceneApi>>();
+  const canvasRef = useSignal<HTMLCanvasElement>();
   const selectedDice = useSignal<{ index: number; value: number }[]>([]);
   const setAsideResults = useSignal<number[]>([]);
   const isShowModal = useSignal(false);
 
   // Загружаем настройки особых кубиков из localStorage
-  const specialDiceSettings = useSignal<{ face: number; attempts: number }[]>(
+  const specialDiceSettings = useSignal<SpecialDiceEntry[]>(
     JSON.parse(localStorage.getItem("specialDiceSettings") || "[]"),
   );
 
-  // Функция для обновления настроек и их сохранения в localStorage
-  const updateSpecialDiceSettings = $(
-    (newSettings: { face: number; attempts: number }[]) => {
-      specialDiceSettings.value = newSettings;
-      localStorage.setItem("specialDiceSettings", JSON.stringify(newSettings));
-    },
-  );
+  const saveSpecialDiceSettings = $((newSettings: SpecialDiceEntry[]) => {
+    specialDiceSettings.value = newSettings;
+    localStorage.setItem("specialDiceSettings", JSON.stringify(newSettings));
+    isShowModal.value = false;
+  });
 
   useVisibleTask$(({ track }) => {
     track(() => canvasRef.value);
-    track(() => specialDiceSettings.value); // Отслеживаем обновления настроек
 
     if (canvasRef.value) {
-      const { rollAllDice, setAsideSelectedDice } = initSceneWrapper(
+      const api = initSceneWrapper(
         canvasRef.value,
         {
           onDiceClick: (index: number, value: number) => {
             if (!selectedDice.value.some((d) => d.index === index)) {
               selectedDice.value = [...selectedDice.value, { index, value }];
+            } else {
+              selectedDice.value = selectedDice.value.filter(
+                (d) => d.index !== index,
+              );
             }
           },
         },
       );
-      rollDiceFn.value = () => rollAllDice(specialDiceSettings.value); // Передаем настройки при броске
-      setAsideFn.value = setAsideSelectedDice;
+      sceneApi.value = noSerialize(api);
     }
   });
 
@@ -60,82 +64,36 @@ export const DiceScene = component$(() => {
     >
       <canvas ref={canvasRef} style={{ display: "block" }}></canvas>
 
-      <button
-        onClick$={() => rollDiceFn.value?.()}
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-          zIndex: "10",
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Бросить все кубики
-      </button>
+      <div class="action-panel">
+        <button onClick$={() => sceneApi.value?.rollAllDice()}>
+          Бросить все кубики
+        </button>
 
-      {/* Кнопка "Настроить особые кубики" */}
-      <button
-        onClick$={() => (isShowModal.value = true)}
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "150px",
-          zIndex: "10",
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Настроить особые кубики
-      </button>
-
-      {selectedDice.value.length > 0 && (
         <button
           onClick$={() => {
-            if (setAsideFn.value) {
-              setAsideResults.value = setAsideFn.value();
+            if (sceneApi.value) {
+              setAsideResults.value = sceneApi.value.setAsideSelectedDice();
               selectedDice.value = [];
             }
           }}
-          style={{
-            position: "absolute",
-            top: "50px",
-            left: "10px",
-            zIndex: "10",
-            padding: "10px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
+          disabled={selectedDice.value.length === 0}
         >
           Отложить выбранные
         </button>
-      )}
+
+        <button onClick$={() => (isShowModal.value = true)}>
+          Настроить особые кубики
+        </button>
+      </div>
 
       {/* Отображение отложенных кубиков */}
       {setAsideResults.value.length > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: "90px",
-            left: "10px",
-            zIndex: "10",
-            background: "rgba(255,255,255,0.8)",
-            padding: "10px",
-            borderRadius: "5px",
-          }}
-        >
-          Вы отложили: {setAsideResults.value.join(", ")}
-        </div>
+        <div>Вы отложили: {setAsideResults.value.join(", ")}</div>
       )}
 
       {isShowModal.value && (
         <SpecialDiceModal
-          onSave={(data) => {
-            updateSpecialDiceSettings(data);
-            isShowModal.value = false;
-          }}
+          onSave$={saveSpecialDiceSettings}
         />
       )}
     </div>

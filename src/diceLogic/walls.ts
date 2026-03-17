@@ -3,7 +3,7 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
 export function createWalls(scene: THREE.Scene, world: CANNON.World) {
-  const wallSize = { width: 13, height: 8, depth: 0.3 };
+  const wallSize = { width: 13.2, height: 8, depth: 0.3 };
   const positions = [
     { x: 0, y: 4, z: 6.4 },
     { x: 0, y: 4, z: -6.4 },
@@ -14,14 +14,18 @@ export function createWalls(scene: THREE.Scene, world: CANNON.World) {
   positions.forEach(({ x, y, z, rotY = 0 }) => {
     const geo = new THREE.BoxGeometry(
       wallSize.width,
-      wallSize.height,
+      wallSize.height / 10,
       wallSize.depth,
     );
+    const _mesh = new THREE.Mesh(geo, material);
     const mesh = new THREE.Mesh(geo, material);
-    mesh.position.set(x, y, z);
+    mesh.position.set(x, y / 5, z);
+    _mesh.position.set(x, y / 5, z);
     mesh.castShadow = false;
-    mesh.receiveShadow = true;
+    mesh.receiveShadow = false;
     mesh.rotation.y = rotY;
+    _mesh.rotation.y = rotY;
+    // scene.add(mesh);
     scene.add(mesh);
     const shape = new CANNON.Box(
       new CANNON.Vec3(

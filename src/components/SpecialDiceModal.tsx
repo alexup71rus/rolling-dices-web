@@ -1,18 +1,24 @@
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { $, component$, type PropFunction, useSignal } from "@builder.io/qwik";
 import "./SpecialDiceModal.css";
 
-export const SpecialDiceModal = component$(({ onSave }) => {
-  const specialDice = useSignal([{ face: 1, attempts: 1 }]);
+type SpecialDiceEntry = { face: number; attempts: number };
+
+type SpecialDiceModalProps = {
+  onSave$: PropFunction<(data: SpecialDiceEntry[]) => void>;
+};
+
+export const SpecialDiceModal = component$<SpecialDiceModalProps>(({ onSave$ }) => {
+  const specialDice = useSignal<SpecialDiceEntry[]>([{ face: 1, attempts: 1 }]);
 
   const addDice = $(() => {
     specialDice.value = [...specialDice.value, { face: 1, attempts: 1 }];
   });
 
-  const removeDice = $((index) => {
+  const removeDice = $((index: number) => {
     specialDice.value = specialDice.value.filter((_, i) => i !== index);
   });
 
-  const updateDice = $((index, key, value) => {
+  const updateDice = $((index: number, key: keyof SpecialDiceEntry, value: number) => {
     const updated = [...specialDice.value];
     updated[index][key] = value;
     specialDice.value = updated;
@@ -31,9 +37,10 @@ export const SpecialDiceModal = component$(({ onSave }) => {
                 min="1"
                 max="6"
                 value={dice.face}
-                onInput$={(e) =>
-                  updateDice(index, "face", parseInt(e.target.value))
-                }
+                onInput$={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  updateDice(index, "face", Number.parseInt(input.value, 10));
+                }}
               />
             </label>
             <label>
@@ -42,9 +49,10 @@ export const SpecialDiceModal = component$(({ onSave }) => {
                 type="number"
                 min="1"
                 value={dice.attempts}
-                onInput$={(e) =>
-                  updateDice(index, "attempts", parseInt(e.target.value))
-                }
+                onInput$={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  updateDice(index, "attempts", Number.parseInt(input.value, 10));
+                }}
               />
             </label>
             <button onClick$={() => removeDice(index)}>Удалить</button>
@@ -53,7 +61,7 @@ export const SpecialDiceModal = component$(({ onSave }) => {
         <button onClick$={addDice}>Добавить кубик</button>
         <button
           onClick$={() => {
-            onSave(specialDice.value);
+            onSave$(specialDice.value);
           }}
         >
           Сохранить
