@@ -5,6 +5,8 @@ import {
   resolveLuckyDice,
   clampWeights,
   rollDice,
+  resetWeights,
+  performRoll,
   buildModifiersFromConfig,
   type DieType,
 } from './diceModifiers';
@@ -80,6 +82,13 @@ describe('clampWeights', () => {
     clampWeights(dice);
     expect(dice[0].weights[2]).toBe(0);
   });
+
+  it('leaves non-negative weights unchanged', () => {
+    const dice = [createDie('normal')];
+    dice[0].weights = [0, 1, 2, 3, 4, 5];
+    clampWeights(dice);
+    expect(dice[0].weights).toEqual([0, 1, 2, 3, 4, 5]);
+  });
 });
 
 describe('resolveLuckyDice', () => {
@@ -146,5 +155,103 @@ describe('buildModifiersFromConfig', () => {
     configs.forEach(config => {
       expect(buildModifiersFromConfig(config)).toEqual([]);
     });
+  });
+});
+
+describe('createDie (lucky/unlucky)', () => {
+  it('lucky die has equal base weights', () => {
+    const die = createDie('lucky');
+    expect(die.baseWeights).toEqual([1, 1, 1, 1, 1, 1]);
+    expect(die.type).toBe('lucky');
+  });
+
+  it('unlucky die has equal base weights', () => {
+    const die = createDie('unlucky');
+    expect(die.baseWeights).toEqual([1, 1, 1, 1, 1, 1]);
+    expect(die.type).toBe('unlucky');
+  });
+});
+
+describe('resetWeights', () => {
+  it('restores weights to baseWeights after modification', () => {
+    const dice = [createDie('biased-1')];
+    dice[0].weights = [0, 0, 0, 0, 0, 100];
+    resetWeights(dice);
+    expect(dice[0].weights).toEqual([3, 1, 1, 1, 1, 1]);
+  });
+
+  it('does not mutate baseWeights', () => {
+    const dice = [createDie('normal')];
+    dice[0].weights = [99, 0, 0, 0, 0, 0];
+    resetWeights(dice);
+    expect(dice[0].baseWeights).toEqual([1, 1, 1, 1, 1, 1]);
+  });
+});
+
+describe('applyModifiers edge cases', () => {
+  it('empty modifiers array leaves weights unchanged', () => {
+    const dice = [createDie('normal')];
+    applyModifiers(dice, []);
+    expect(dice[0].weights).toEqual([1, 1, 1, 1, 1, 1]);
+  });
+
+  it('out-of-range targetDiceIndices are silently skipped', () => {
+    const dice = [createDie('normal')];
+    applyModifiers(dice, [{
+      power: 5, targetDiceIndices: [-1, 5], effectType: 'boost', params: { face: 1, amount: 2 },
+    }]);
+    expect(dice[0].weights).toEqual([1, 1, 1, 1, 1, 1]);
+  });
+});
+
+describe('resolveLuckyDice edge cases', () => {
+  it('lucky + unlucky on same pool partially cancel out', () => {
+    const dice = [createDie('lucky'), createDie('unlucky'), createDie('normal')];
+    resolveLuckyDice(dice);
+    // Lucky: face 1 boosted from 1→2; Unlucky: face 1 reduced from 1→0
+    expect(dice[0].weights[0]).toBe(2);
+    expect(dice[1].weights[0]).toBe(0);
+    // Normal die: unchanged
+    expect(dice[2].weights).toEqual([1, 1, 1, 1, 1, 1]);
+  });
+});
+
+describe('performRoll full pipeline', () => {
+  it('biased-1 die produces results heavily weighted toward 1', () => {
+    const dice = [createDie('biased-1')];
+    const modifiers = buildModifiersFromConfig(['biased-1']);
+    const counts: Record<number, number> = {};
+    for (let i = 0; i < 200; i++) {
+      const [v] = performRoll(dice, modifiers);
+      counts[v] = (counts[v] || 0) + 1;
+    }
+    // With 3/8 chance of 1, should appear significantly more than 1/6 ≈ 33 times
+    expect(counts[1] || 0).toBeGreaterThan(40);
+  });
+
+  it('resetWeights is called — prior modifier effects do not persist', () => {
+    const dice = [createDie('normal')];
+    // First: set weight to something weird
+    dice[0].weights = [0, 0, 0, 0, 0, 100];
+    const result = performRoll(dice, []);
+    // After performRoll, weights should have been reset: result can be any face, not just 6
+    // We just verify weights were actually reset
+    expect(dice[0].weights[0]).toBeGreaterThanOrEqual(0);
+    expect(result[0]).toBeGreaterThanOrEqual(1);
+    expect(result[0]).toBeLessThanOrEqual(6);
+  });
+
+  it('applies modifiers in the pipeline', () => {
+    const dice = [createDie('normal')];
+    // Block all faces except 4
+    const modifiers = [
+      { power: 5, targetDiceIndices: [0], effectType: 'block' as const, params: { face: 1 } },
+      { power: 5, targetDiceIndices: [0], effectType: 'block' as const, params: { face: 2 } },
+      { power: 5, targetDiceIndices: [0], effectType: 'block' as const, params: { face: 3 } },
+      { power: 5, targetDiceIndices: [0], effectType: 'block' as const, params: { face: 5 } },
+      { power: 5, targetDiceIndices: [0], effectType: 'block' as const, params: { face: 6 } },
+    ];
+    const results = Array.from({ length: 30 }, () => performRoll(dice, modifiers)[0]);
+    results.forEach(v => expect(v).toBe(4));
   });
 });

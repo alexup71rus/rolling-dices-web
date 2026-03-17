@@ -87,6 +87,59 @@ describe('detectCombinations', () => {
     expect(total).toBe(1000);
     expect(result.filter(c => c.type === 'triple')).toHaveLength(2);
   });
+
+  it('empty array → no combinations', () => {
+    expect(detectCombinations([])).toEqual([]);
+  });
+
+  it('single die [1] → single 1 (100pts)', () => {
+    const result = detectCombinations([1]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ type: 'single', face: 1, points: 100 });
+  });
+
+  it('single die [5] → single 5 (50pts)', () => {
+    const result = detectCombinations([5]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ type: 'single', face: 5, points: 50 });
+  });
+
+  it('single die [3] → no scoring', () => {
+    expect(detectCombinations([3])).toEqual([]);
+  });
+
+  it('[1, 5] → single 1 + single 5 (150pts)', () => {
+    const result = detectCombinations([1, 5]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(150);
+    expect(result).toHaveLength(2);
+  });
+
+  it('[2, 3, 4, 5, 6] is NOT a straight → only single 5 (50pts)', () => {
+    const result = detectCombinations([2, 3, 4, 5, 6]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(50);
+    expect(result.every(c => c.type !== 'straight')).toBe(true);
+  });
+
+  it('[1, 1, 1, 1, 1] → triple(1000) + two singles(200) = 1200pts', () => {
+    const result = detectCombinations([1, 1, 1, 1, 1]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(1200);
+  });
+
+  it('[2, 2, 2, 2, 2, 2] → two triples of 2 = 400pts', () => {
+    const result = detectCombinations([2, 2, 2, 2, 2, 2]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(400);
+    expect(result.filter(c => c.type === 'triple')).toHaveLength(2);
+  });
+
+  it('[1, 2, 3, 4, 5, 6] → straight(1500) + single 6? No, 6 is not scoring, only straight', () => {
+    const result = detectCombinations([1, 2, 3, 4, 5, 6]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(1500);
+  });
 });
 
 describe('scoreCombinations', () => {
@@ -119,16 +172,20 @@ describe('isFarkle', () => {
 
 describe('isHotDice', () => {
   it('returns true when all active dice are in scoring combos', () => {
-    // triple 1s + triple 5s = all 6 dice score
     expect(isHotDice([1, 1, 1, 5, 5, 5], [0, 1, 2, 3, 4, 5])).toBe(true);
   });
 
   it('returns false when some active dice are non-scoring', () => {
-    // single 1, but dice 1-3 are 2,3,4 — non-scoring
     expect(isHotDice([1, 2, 3, 4], [0, 1, 2, 3])).toBe(false);
   });
 
   it('vacuously true for empty activeIndices', () => {
     expect(isHotDice([], [])).toBe(true);
+  });
+
+  it('uses precomputedCombos when provided', () => {
+    // Pass wrong combos — should trust them, not recompute
+    const fakeCombos = [{ type: 'single' as const, face: 1, diceIndices: [0, 1, 2, 3], points: 100 }];
+    expect(isHotDice([2, 3, 4, 6], [0, 1, 2, 3], fakeCombos)).toBe(true);
   });
 });

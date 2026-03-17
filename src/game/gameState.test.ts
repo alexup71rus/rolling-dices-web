@@ -112,3 +112,91 @@ describe('resetForHotDice', () => {
     });
   });
 });
+
+describe('selectDie edge cases', () => {
+  it('does nothing for non-existent meshIndex', () => {
+    const state = createInitialTurnState();
+    selectDie(state, 999);
+    expect(state.diceState.every(d => !d.selected)).toBe(true);
+  });
+
+  it('selecting a setAside die still marks it selected', () => {
+    const state = createInitialTurnState();
+    state.diceState[0].setAside = true;
+    selectDie(state, 0);
+    expect(state.diceState[0].selected).toBe(true);
+  });
+});
+
+describe('deselectDie edge cases', () => {
+  it('does nothing for non-existent meshIndex', () => {
+    const state = createInitialTurnState();
+    state.diceState[0].selected = true;
+    deselectDie(state, 999);
+    expect(state.diceState[0].selected).toBe(true);
+  });
+});
+
+describe('applyRollResult edge cases', () => {
+  it('fewer values than active dice fills remainder with 0', () => {
+    const state = createInitialTurnState();
+    applyRollResult(state, [3, 5]);
+    expect(state.diceState[0].value).toBe(3);
+    expect(state.diceState[1].value).toBe(5);
+    expect(state.diceState[2].value).toBe(0);
+  });
+
+  it('calling twice overwrites previous values', () => {
+    const state = createInitialTurnState();
+    applyRollResult(state, [1, 2, 3, 4, 5, 6]);
+    applyRollResult(state, [6, 5, 4, 3, 2, 1]);
+    expect(state.diceState[0].value).toBe(6);
+    expect(state.diceState[5].value).toBe(1);
+  });
+});
+
+describe('endTurn edge cases', () => {
+  it('with turnScore=0 returns currentTotal unchanged', () => {
+    const state = createInitialTurnState();
+    state.turnScore = 0;
+    expect(endTurn(state, 500)).toBe(500);
+  });
+});
+
+describe('multi-step turn', () => {
+  it('select → commit → roll → select → commit → endTurn accumulates correctly', () => {
+    const state = createInitialTurnState();
+
+    // First roll: [1, 5, 2, 3, 4, 6]
+    applyRollResult(state, [1, 5, 2, 3, 4, 6]);
+    selectDie(state, 0); // face 1
+    selectDie(state, 1); // face 5
+    commitSelection(state, 150); // 100 + 50
+    expect(state.turnScore).toBe(150);
+    expect(state.diceState[0].setAside).toBe(true);
+    expect(state.diceState[1].setAside).toBe(true);
+
+    // Second roll: only 4 active dice → [1, 1, 1, 6]
+    applyRollResult(state, [1, 1, 1, 6]);
+    // Dice 0,1 are setAside; dice 2,3,4 got [1,1,1], dice 5 got 6
+    expect(state.diceState[0].value).toBe(1); // still old value, setAside
+    expect(state.diceState[2].value).toBe(1);
+    expect(state.diceState[3].value).toBe(1);
+    expect(state.diceState[4].value).toBe(1);
+    expect(state.diceState[5].value).toBe(6);
+
+    selectDie(state, 2);
+    selectDie(state, 3);
+    selectDie(state, 4);
+    commitSelection(state, 1000); // triple 1s
+    expect(state.turnScore).toBe(1150);
+
+    const newTotal = endTurn(state, 800);
+    expect(newTotal).toBe(1950);
+    expect(state.turnScore).toBe(0);
+    state.diceState.forEach(d => {
+      expect(d.setAside).toBe(false);
+      expect(d.selected).toBe(false);
+    });
+  });
+});

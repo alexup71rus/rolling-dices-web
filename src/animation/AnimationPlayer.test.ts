@@ -36,4 +36,34 @@ describe('interpolateFrame', () => {
     const result = interpolateFrame([frame0, frame1], 5);
     expect(result[0].px).toBeCloseTo(10);
   });
+
+  it('returns empty array for empty frames', () => {
+    expect(interpolateFrame([], 0.5)).toEqual([]);
+  });
+
+  it('returns single frame values when only one frame', () => {
+    const result = interpolateFrame([frame0], 0.5);
+    expect(result[0].px).toBeCloseTo(0);
+  });
+
+  it('interpolates multiple dice independently', () => {
+    const f0: AnimationFrame = {
+      t: 0,
+      dice: [
+        { px: 0, py: 0, pz: 0, qx: 0, qy: 0, qz: 0, qw: 1 },
+        { px: 10, py: 0, pz: 0, qx: 0, qy: 0, qz: 0, qw: 1 },
+      ],
+    };
+    const f1: AnimationFrame = {
+      t: 1,
+      dice: [
+        { px: 10, py: 0, pz: 0, qx: 0, qy: 0, qz: 0, qw: 1 },
+        { px: 0, py: 0, pz: 0, qx: 0, qy: 0, qz: 0, qw: 1 },
+      ],
+    };
+    const result = interpolateFrame([f0, f1], 0.5);
+    expect(result).toHaveLength(2);
+    expect(result[0].px).toBeCloseTo(5);
+    expect(result[1].px).toBeCloseTo(5);
+  });
 });
