@@ -1,0 +1,1 @@
+import{j as d}from"./core.prod-CGJnmN-j.js";import"./preloader-C-Y9QxqI.js";const i=({cleanup:t})=>{const n=e=>{var o;(e.key==="Enter"||e.key.toLowerCase()==="n")&&(e.preventDefault(),(o=document.querySelector(".win-play-again-btn"))==null||o.click())};window.addEventListener("keydown",n),t(()=>window.removeEventListener("keydown",n))};export{d as _hW,i as s_5nju47h7ML4};

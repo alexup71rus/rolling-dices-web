@@ -1,0 +1,1 @@
+import{i as e}from"./core.prod-CGJnmN-j.js";import"./preloader-C-Y9QxqI.js";const u=()=>{const[o,n]=e();if(n==="normal"||o["biased-1"]+o["biased-5"]+o.lucky+o.unlucky>=6)return;o[n]++;const r=o["biased-1"]+o["biased-5"]+o.lucky+o.unlucky;o.normal=6-r};export{u as s_veSjXK0WWfE};

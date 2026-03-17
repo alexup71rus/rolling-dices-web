@@ -1,0 +1,1 @@
+const t=s=>s.target.style.transform="scale(1)";export{t as s_cxdoYgsp3jU};

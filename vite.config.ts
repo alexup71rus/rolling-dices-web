@@ -4,6 +4,7 @@ import { saveAnimationPlugin } from './src/studio/saveAnimationPlugin'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/rolling-dices-web/',
   plugins: [
     qwikVite({
       csr: true,
