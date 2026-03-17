@@ -10,7 +10,7 @@ export function initSceneWrapper(
   options?: { onDiceClick?: (index: number, value: number) => void },
 ) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(sceneSettings.backgroundColor);
+  scene.background = null;
 
   const camera = new THREE.PerspectiveCamera(
     sceneSettings.camera.fov,
@@ -31,6 +31,7 @@ export function initSceneWrapper(
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
+    alpha: true,
     canvas,
   });
   renderer.setSize(window.innerWidth, window.innerHeight);

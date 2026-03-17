@@ -32,66 +32,71 @@ export const SetupScreen = component$(() => {
 
   return (
     <div style="display:flex;align-items:center;justify-content:center;height:100vh;">
-      <div style="background:#0f172a;border-radius:12px;padding:24px;width:480px;color:#fff;font-family:sans-serif;">
-        <h2 style="margin:0 0 20px;font-size:18px;">🎲 Новая игра</h2>
+      <div style="background:rgba(43, 23, 7, 0.6);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.5);border-radius:16px;padding:32px;width:480px;color:#fef3c7;">
+        <h2 style="margin:0 0 24px;font-size:24px;text-align:center;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.5);letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:10px;">
+          <span style="font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🎲</span> Зонк
+        </h2>
 
         {/* Goal */}
-        <div style="margin-bottom:20px;">
-          <div style="font-size:11px;color:#aaa;letter-spacing:1px;margin-bottom:8px;">ЦЕЛЬ</div>
-          <div style="display:flex;gap:8px;">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;color:#d4d4d8;letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.5);">Цель игры</div>
+          <div style="display:flex;gap:12px;">
             {TARGETS.map(t => (
               <div
                 key={t}
-                style={`flex:1;background:${store.target === t ? '#1a1a2e' : '#111'};border:${store.target === t ? '2px solid #2563eb' : '1px solid #333'};border-radius:8px;padding:10px;text-align:center;cursor:pointer;`}
+                style={`flex:1;background:${store.target === t ? 'rgba(217,119,6,.8)' : 'rgba(0,0,0,0.3)'};border:${store.target === t ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.1)'};border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s ease;`}
                 onClick$={() => { store.target = t as 2000 | 3000 | 4000; }}
               >
-                <div style={`font-size:18px;font-weight:bold;color:${store.target === t ? '#4fc3f7' : '#555'};`}>{t.toLocaleString()}</div>
+                <div style={`font-size:20px;font-weight:700;color:${store.target === t ? '#fff' : '#a1a1aa'};text-shadow:0 1px 2px rgba(0,0,0,0.3);`}>{t.toLocaleString()}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Dice configurator */}
-        <div style="margin-bottom:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <div style="font-size:11px;color:#aaa;letter-spacing:1px;">КУБИКИ</div>
-            <div style="font-size:12px;color:#4fc3f7;">{Object.values(counts).reduce((s, n) => s + n, 0)} / 6</div>
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:12px;color:#d4d4d8;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.5);">Кубики</div>
+            <div style="font-size:13px;color:#fbbf24;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);">{Object.values(counts).reduce((s, n) => s + n, 0)} / 6</div>
           </div>
 
           {DIE_TYPES.map(({ type, icon, label, description }) => (
-            <div key={type} style={`background:${type === 'normal' ? '#111' : '#1a1a2e'};border:1px solid ${type === 'normal' ? '#222' : '#333'};border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;`}>
-              <span style="font-size:20px;">{icon}</span>
+            <div key={type} style={`background:${type === 'normal' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.05)'};border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:background 0.2s ease;`}>
+              <span style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));">{icon}</span>
               <div style="flex:1;">
-                <div style={`font-size:12px;color:${type === 'normal' ? '#555' : '#fff'};`}>{label}</div>
-                <div style="font-size:10px;color:#444;">{type === 'normal' ? 'Автозаполнение' : description}</div>
+                <div style={`font-size:14px;font-weight:500;color:${type === 'normal' ? '#d4d4d8' : '#fff'};text-shadow:0 1px 2px rgba(0,0,0,0.4);`}>{label}</div>
+                <div style="font-size:11px;color:#a1a1aa;margin-top:2px;">{type === 'normal' ? 'Автозаполнение обычными кубиками' : description}</div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;">
+              <div style="display:flex;align-items:center;gap:10px;">
                 <span
-                  style={`font-size:18px;padding:0 6px;cursor:${type === 'normal' ? 'default' : 'pointer'};color:${type === 'normal' ? '#333' : '#4fc3f7'};`}
+                  style={`font-size:20px;padding:0 8px;cursor:${type === 'normal' ? 'default' : 'pointer'};color:${type === 'normal' ? 'rgba(255,255,255,0.2)' : '#fbbf24'};user-select:none;transition:transform 0.1s;`}
                   onClick$={() => {
                     if (type === 'normal') return;
                     if (counts[type] <= 0) return;
                     counts[type]--;
-                    const nextNonNormal =
-                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    const nextNonNormal = counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
                     counts['normal'] = 6 - nextNonNormal;
                   }}
+                  onMouseDown$={(e) => (e.target as HTMLElement).style.transform='scale(0.9)'}
+                  onMouseUp$={(e) => (e.target as HTMLElement).style.transform='scale(1)'}
+                  onMouseLeave$={(e) => (e.target as HTMLElement).style.transform='scale(1)'}
                 >−</span>
-                <span style={`font-size:16px;min-width:18px;text-align:center;color:${type === 'normal' ? '#555' : '#fff'};font-weight:bold;`}>
+                <span style={`font-size:18px;min-width:20px;text-align:center;color:${type === 'normal' ? '#d4d4d8' : '#fff'};font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);`}>
                   {counts[type]}
                 </span>
                 <span
-                  style={`font-size:18px;padding:0 6px;cursor:${type === 'normal' || nonNormalCount >= 6 ? 'default' : 'pointer'};color:${type === 'normal' || (nonNormalCount >= 6 && counts[type] === 0) ? '#333' : '#4fc3f7'};`}
+                  style={`font-size:20px;padding:0 8px;cursor:${type === 'normal' || nonNormalCount >= 6 ? 'default' : 'pointer'};color:${type === 'normal' || (nonNormalCount >= 6 && counts[type] === 0) ? 'rgba(255,255,255,0.2)' : '#fbbf24'};user-select:none;transition:transform 0.1s;`}
                   onClick$={() => {
                     if (type === 'normal') return;
-                    const currentNonNormal =
-                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    const currentNonNormal = counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
                     if (currentNonNormal >= 6) return;
                     counts[type]++;
-                    const nextNonNormal =
-                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    const nextNonNormal = counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
                     counts['normal'] = 6 - nextNonNormal;
                   }}
+                  onMouseDown$={(e) => (e.target as HTMLElement).style.transform='scale(0.9)'}
+                  onMouseUp$={(e) => (e.target as HTMLElement).style.transform='scale(1)'}
+                  onMouseLeave$={(e) => (e.target as HTMLElement).style.transform='scale(1)'}
                 >+</span>
               </div>
             </div>
@@ -99,13 +104,15 @@ export const SetupScreen = component$(() => {
         </div>
 
         {/* Summary icons */}
-        <div style="display:flex;gap:8px;justify-content:center;padding:10px;background:#0d1117;border-radius:6px;margin-bottom:16px;font-size:24px;">
-          {summaryIcons().map((icon, i) => <span key={i}>{icon}</span>)}
+        <div style="display:flex;gap:10px;justify-content:center;padding:12px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:24px;font-size:26px;box-shadow:inset 0 2px 6px rgba(0,0,0,0.5);">
+          {summaryIcons().map((icon, i) => <span key={i} style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">{icon}</span>)}
         </div>
 
         {/* Start button */}
         <button
-          style="width:100%;padding:12px;font-size:14px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;"
+          style="width:100%;padding:16px;font-size:16px;background:linear-gradient(to bottom, #d97706, #b45309);color:#fff;border:1px solid #f59e0b;border-radius:10px;cursor:pointer;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.4);box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.2s ease;"
+          onMouseOver$={(e) => (e.target as HTMLElement).style.filter='brightness(1.1)'}
+          onMouseOut$={(e) => (e.target as HTMLElement).style.filter='brightness(1)'}
           onClick$={() => {
             const config: DieType[] = [];
             for (const { type } of DIE_TYPES) {
@@ -121,7 +128,7 @@ export const SetupScreen = component$(() => {
             store.screen = 'game';
           }}
         >
-          ▶ Начать игру
+          ▶ Бросить кости
         </button>
       </div>
     </div>

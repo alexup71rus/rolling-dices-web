@@ -81,7 +81,7 @@ export const GameScreen = component$(() => {
 
         {specialDiceTestMode && (
           <div class="overlay test-mode-badge">
-            TEST MODE: 100% outcomes for special dice
+            TEST MODE: шанс выпадения в шулерских костях всегда 100%
           </div>
         )}
 
@@ -109,6 +109,19 @@ export const GameScreen = component$(() => {
 
       {/* Right panel */}
       <div class="panel">
+        <div class="top-bar">
+          <h1 class="panel-title">Стол</h1>
+          <button
+            class="btn-new-game"
+            onClick$={() => {
+              // Basic reset just by navigating back to setup. The setup start button handles state reset anyway.
+              store.screen = 'setup';
+            }}
+          >
+            Новая игра
+          </button>
+        </div>
+
         {/* Scores */}
         <div class="score-card">
           <div class="score-label">Очки за ход</div>
