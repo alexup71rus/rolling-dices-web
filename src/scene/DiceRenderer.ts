@@ -117,8 +117,9 @@ async function loadDieAssets(): Promise<{
   let materials: THREE.Material[];
   try {
     const loader = new THREE.TextureLoader();
+    const base = import.meta.env.BASE_URL;
     const textures = await Promise.all(
-      [1, 2, 3, 4, 5, 6].map(n => loader.loadAsync(`/textures/face_${n}.png`))
+      [1, 2, 3, 4, 5, 6].map(n => loader.loadAsync(`${base}textures/face_${n}.png`))
     );
 
     const faceToMat = textures.map(tex => {

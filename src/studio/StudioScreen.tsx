@@ -12,7 +12,7 @@ export const StudioScreen = component$(() => {
 
   const refreshLibrary = $(async () => {
     try {
-      const res = await fetch('/animations/manifest.json?t=' + Date.now());
+      const res = await fetch(`${import.meta.env.BASE_URL}animations/manifest.json?t=${Date.now()}`);
       if (res.ok) library.value = await res.json();
     } catch { /* ignore */ }
   });

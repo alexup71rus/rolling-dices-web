@@ -19,7 +19,7 @@ const animCache = new Map<string, AnimationData>();
 
 export async function loadManifest(): Promise<Manifest> {
   if (manifestCache) return manifestCache;
-  const res = await fetch('/animations/manifest.json');
+  const res = await fetch(`${import.meta.env.BASE_URL}animations/manifest.json`);
   if (!res.ok) throw new Error(`Failed to load manifest: ${res.status}`);
   manifestCache = await res.json() as Manifest;
   return manifestCache;
@@ -32,7 +32,7 @@ export function clearManifestCache(): void {
 
 async function fetchAnimation(path: string): Promise<AnimationData> {
   if (animCache.has(path)) return animCache.get(path)!;
-  const res = await fetch(`/animations/${path}`);
+  const res = await fetch(`${import.meta.env.BASE_URL}animations/${path}`);
   if (!res.ok) throw new Error(`Failed to load animation ${path}: ${res.status}`);
   const data = await res.json() as AnimationData;
   animCache.set(path, data);

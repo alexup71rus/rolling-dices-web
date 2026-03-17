@@ -1,6 +1,6 @@
 {
 	"version": "1",
-	"manifestHash": "k70k1f",
+	"manifestHash": "i9rnli",
 	"options": {
 		"target": "client",
 		"buildMode": "production",
@@ -10,7 +10,7 @@
 	},
 	"core": "../assets/core.prod-CGJnmN-j.js",
 	"preloader": "../assets/preloader-C-Y9QxqI.js",
-	"bundleGraphAsset": "assets/bundle-graph-CnQbH9Bk.json",
+	"bundleGraphAsset": "assets/bundle-graph-BHkm-YDs.json",
 	"injections": [
 		{
 			"tag": "style",
@@ -82,21 +82,21 @@
 		"s_s9Rm6mZGd84": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_div_div_button_onMouseOut_1_s9Rm6mZGd84-I82O0BWL.js",
 		"s_0MMETwznelA": "../assets/SetupScreen.tsx_SetupScreen_component_useVisibleTask_0MMETwznelA-BU4bFZLi.js",
 		"s_5nju47h7ML4": "../assets/WinScreen.tsx_WinScreen_component_useVisibleTask_5nju47h7ML4-V2botRBf.js",
-		"s_LrlP4dVtwHU": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-DJn8Pw55.js",
+		"s_LrlP4dVtwHU": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-Do82P_ZU.js",
 		"s_NzPInwbHmrc": "../assets/ModeSelectScreen.tsx_ModeSelectScreen_component_useVisibleTask_NzPInwbHmrc-Zs8D11WW.js",
-		"s_kBe0iX0HBe0": "../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BrY_WmBr.js",
+		"s_kBe0iX0HBe0": "../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BsIRF6T4.js",
 		"s_uIeup8YqzO8": "../assets/FreeRollSetupScreen.tsx_FreeRollSetupScreen_component_useVisibleTask_uIeup8YqzO8-BVD1LTy0.js",
 		"s_2ozeRY6OmtA": "../assets/FreeRollSetupScreen.tsx_FreeRollSetupScreen_component_2ozeRY6OmtA-OZ_-rif0.js",
-		"s_AkbU84a8zes": "../assets/app.tsx_App_component_AkbU84a8zes-AyImWw70.js",
-		"s_Bm6KJoxWq4A": "../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-C5V73vBl.js",
+		"s_AkbU84a8zes": "../assets/app.tsx_App_component_AkbU84a8zes-C06L-gQY.js",
+		"s_Bm6KJoxWq4A": "../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-B7yW7CpP.js",
 		"s_hMv6FzDeH1k": "../assets/ModeSelectScreen.tsx_ModeSelectScreen_component_hMv6FzDeH1k-D3vc1u6c.js",
-		"s_pbbxsb5VugU": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-CAg2af5g.js",
+		"s_pbbxsb5VugU": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-3q1p46PE.js",
 		"s_xNKEU3cpaq8": "../assets/SetupScreen.tsx_SetupScreen_component_xNKEU3cpaq8-BhszbUp7.js",
 		"s_ypbPledTzdk": "../assets/WinScreen.tsx_WinScreen_component_ypbPledTzdk-BvWKJJ9K.js",
 		"s_EptLoP0fYok": "../assets/FreeRollScreen.tsx_FreeRollScreen_component_handleRoll_EptLoP0fYok-D6CZMJFn.js"
 	},
 	"bundles": {
-		"../assets/app.tsx_App_component_AkbU84a8zes-AyImWw70.js": {
+		"../assets/app.tsx_App_component_AkbU84a8zes-C06L-gQY.js": {
 			"size": 2078,
 			"total": 199025,
 			"imports": [
@@ -106,9 +106,9 @@
 				"../assets/SetupScreen-BwCqiynm.js"
 			],
 			"dynamicImports": [
-				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-CAg2af5g.js",
+				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-3q1p46PE.js",
 				"../assets/FreeRollSetupScreen.tsx_FreeRollSetupScreen_component_2ozeRY6OmtA-OZ_-rif0.js",
-				"../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-C5V73vBl.js",
+				"../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-B7yW7CpP.js",
 				"../assets/ModeSelectScreen.tsx_ModeSelectScreen_component_hMv6FzDeH1k-D3vc1u6c.js",
 				"../assets/WinScreen.tsx_WinScreen_component_ypbPledTzdk-BvWKJJ9K.js"
 			],
@@ -135,11 +135,11 @@
 			],
 			"interactivity": 0
 		},
-		"../assets/FreeRollController-BAKRpVZM.js": {
+		"../assets/FreeRollController-D72UwhN8.js": {
 			"size": 606,
-			"total": 591550,
+			"total": 591613,
 			"imports": [
-				"../assets/sceneSetup-DCITk8_a.js"
+				"../assets/sceneSetup-BC8yT4ZT.js"
 			],
 			"origins": [
 				"src/freeroll/FreeRollController.ts"
@@ -218,7 +218,7 @@
 			],
 			"interactivity": 1
 		},
-		"../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-CAg2af5g.js": {
+		"../assets/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU-3q1p46PE.js": {
 			"size": 4370,
 			"total": 134881,
 			"imports": [
@@ -233,7 +233,7 @@
 				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_div_div_button_onMouseOver_1_xOxa2IOyXpk-Vyf1ZnNl.js",
 				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_div_div_button_onMouseOver_rzQTzJuJWzk-Zqd6i8tb.js",
 				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_handleRoll_EptLoP0fYok-D6CZMJFn.js",
-				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-DJn8Pw55.js"
+				"../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-Do82P_ZU.js"
 			],
 			"origins": [
 				"src/freeroll/FreeRollScreen.tsx_FreeRollScreen_component_pbbxsb5VugU.js"
@@ -243,7 +243,7 @@
 			],
 			"interactivity": 2
 		},
-		"../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-DJn8Pw55.js": {
+		"../assets/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU-Do82P_ZU.js": {
 			"size": 1014,
 			"total": 66816,
 			"imports": [
@@ -251,7 +251,7 @@
 				"../assets/preload-helper-C4qcXjda.js"
 			],
 			"dynamicImports": [
-				"../assets/FreeRollController-BAKRpVZM.js"
+				"../assets/FreeRollController-D72UwhN8.js"
 			],
 			"origins": [
 				"src/freeroll/FreeRollScreen.tsx_FreeRollScreen_component_useVisibleTask_LrlP4dVtwHU.js"
@@ -474,11 +474,11 @@
 			],
 			"interactivity": 3
 		},
-		"../assets/GameSceneController-wJgSvKKc.js": {
+		"../assets/GameSceneController-CLRUV696.js": {
 			"size": 6670,
-			"total": 598412,
+			"total": 598475,
 			"imports": [
-				"../assets/sceneSetup-DCITk8_a.js",
+				"../assets/sceneSetup-BC8yT4ZT.js",
 				"../assets/scoring-DqVoH09G.js"
 			],
 			"origins": [
@@ -487,7 +487,7 @@
 			],
 			"interactivity": 0
 		},
-		"../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-C5V73vBl.js": {
+		"../assets/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A-B7yW7CpP.js": {
 			"size": 4893,
 			"total": 136202,
 			"imports": [
@@ -501,7 +501,7 @@
 				"../assets/GameScreen.tsx_GameScreen_component_div_div_div_button_onClick_3oF7ewTI6sQ-0-h9piHm.js",
 				"../assets/GameScreen.tsx_GameScreen_component_div_div_div_Fragment_button_onClick_1_UkzGtVQ8ySE-CEg4o2Kd.js",
 				"../assets/GameScreen.tsx_GameScreen_component_div_div_div_Fragment_button_onClick_kwfzPQdbInE-ZYX0hAN0.js",
-				"../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BrY_WmBr.js"
+				"../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BsIRF6T4.js"
 			],
 			"origins": [
 				"src/game/GameScreen.tsx_GameScreen_component_Bm6KJoxWq4A.js"
@@ -567,7 +567,7 @@
 			],
 			"interactivity": 5
 		},
-		"../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BrY_WmBr.js": {
+		"../assets/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0-BsIRF6T4.js": {
 			"size": 1911,
 			"total": 67713,
 			"imports": [
@@ -575,7 +575,7 @@
 				"../assets/preload-helper-C4qcXjda.js"
 			],
 			"dynamicImports": [
-				"../assets/GameSceneController-wJgSvKKc.js"
+				"../assets/GameSceneController-CLRUV696.js"
 			],
 			"origins": [
 				"src/game/GameScreen.tsx_GameScreen_component_useVisibleTask_kBe0iX0HBe0.js"
@@ -596,7 +596,7 @@
 			],
 			"interactivity": 0
 		},
-		"../assets/index-ZOCErbY2.js": {
+		"../assets/index-BGFTlW6p.js": {
 			"size": 424,
 			"total": 66226,
 			"imports": [
@@ -604,7 +604,7 @@
 				"../assets/preload-helper-C4qcXjda.js"
 			],
 			"dynamicImports": [
-				"../assets/app.tsx_App_component_AkbU84a8zes-AyImWw70.js"
+				"../assets/app.tsx_App_component_AkbU84a8zes-C06L-gQY.js"
 			],
 			"origins": [
 				"index.html",
@@ -728,9 +728,9 @@
 			],
 			"interactivity": 0
 		},
-		"../assets/sceneSetup-DCITk8_a.js": {
-			"size": 590944,
-			"total": 590944,
+		"../assets/sceneSetup-BC8yT4ZT.js": {
+			"size": 591007,
+			"total": 591007,
 			"origins": [
 				"node_modules/.pnpm/cannon-es@0.20.0/node_modules/cannon-es/dist/cannon-es.js",
 				"node_modules/.pnpm/three@0.183.2/node_modules/three/build/three.core.js",
@@ -1149,7 +1149,7 @@
 		"index.html": {
 			"size": 632
 		},
-		"assets/bundle-graph-CnQbH9Bk.json": {
+		"assets/bundle-graph-BHkm-YDs.json": {
 			"name": "bundle-graph.json",
 			"size": 405
 		}
