@@ -101,7 +101,7 @@ export const GameScreen = component$(() => {
 
         {phase.value === 'farkle' && (
           <div class="overlay farkle-banner">
-            <div class="farkle-title">💀 Фаркл!</div>
+            <div class="farkle-title">💀 Неудача!</div>
             <div class="farkle-sub">Очки за ход сгорают</div>
           </div>
         )}

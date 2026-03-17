@@ -10,7 +10,11 @@ export function createWalls(scene: THREE.Scene, world: CANNON.World) {
     { x: 6.4, y: 4, z: 0, rotY: Math.PI / 2 },
     { x: -6.4, y: 4, z: 0, rotY: Math.PI / 2 },
   ];
-  const material = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+  const material = new THREE.MeshStandardMaterial({ 
+    color: 0x4a2c11,
+    roughness: 0.8,
+    metalness: 0.1
+  });
   positions.forEach(({ x, y, z, rotY = 0 }) => {
     const geo = new THREE.BoxGeometry(
       wallSize.width,

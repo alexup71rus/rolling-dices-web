@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { createRoundedBoxWithGroups } from './DiceGeometry';
 
 /** slot index → face value (authoritative mapping from diceLogic/dice.ts) */
 export const FACE_ORDER = [2, 5, 1, 6, 3, 4] as const;
@@ -9,29 +10,35 @@ export const FACE_ORDER = [2, 5, 1, 6, 3, 4] as const;
 export interface DiceMeshEntry {
   mesh: THREE.Mesh;
   body: CANNON.Body;
-  baseMaterials: THREE.MeshStandardMaterial[]; // slot-indexed, unmodified
+  baseMaterials: THREE.Material[]; // slot-indexed, unmodified
 }
 
 let cachedDieGeometry: THREE.BufferGeometry | null = null;
-let cachedBaseMaterials: THREE.MeshStandardMaterial[] | null = null;
+let cachedBaseMaterials: THREE.Material[] | null = null;
 
-function createFallbackMaterials(): THREE.MeshStandardMaterial[] {
+function createFallbackMaterials(): THREE.Material[] {
   // Keep distinct faces even when texture assets are missing.
   const fallbackColors = [0xd9d9d9, 0xcfcfcf, 0xe3e3e3, 0xc6c6c6, 0xededed, 0xbdbdbd];
   return FACE_ORDER.map((_, slot) =>
-    new THREE.MeshStandardMaterial({ color: fallbackColors[slot] })
+    new THREE.MeshPhysicalMaterial({ 
+      color: fallbackColors[slot],
+      roughness: 0.15,
+      metalness: 0.1,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2
+    })
   );
 }
 
 async function loadDieAssets(): Promise<{
   geometry: THREE.BufferGeometry;
-  materials: THREE.MeshStandardMaterial[];
+  materials: THREE.Material[];
 }> {
   if (cachedDieGeometry && cachedBaseMaterials) {
     return { geometry: cachedDieGeometry, materials: cachedBaseMaterials };
   }
 
-  let materials: THREE.MeshStandardMaterial[];
+  let materials: THREE.Material[];
   try {
     const loader = new THREE.TextureLoader();
     const textures = await Promise.all(
@@ -40,7 +47,14 @@ async function loadDieAssets(): Promise<{
 
     const faceToMat = textures.map(tex => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      return new THREE.MeshStandardMaterial({ map: tex });
+      // Make them shiny like real dice
+      return new THREE.MeshPhysicalMaterial({ 
+        map: tex,
+        roughness: 0.15, 
+        metalness: 0.05, 
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15
+      });
     });
 
     // Arrange into slot order: slot i → material for FACE_ORDER[i]
@@ -49,23 +63,8 @@ async function loadDieAssets(): Promise<{
     materials = createFallbackMaterials();
   }
 
-  // Load die geometry from GLB; fallback to BoxGeometry
-  let geometry: THREE.BufferGeometry;
-  try {
-    const gltfLoader = new GLTFLoader();
-    const gltf = await gltfLoader.loadAsync('/models/dice.glb');
-    const mesh = gltf.scene.children[0] as THREE.Mesh;
-    geometry = mesh.geometry;
-    // GLB single-primitive has no groups — add 6 groups matching BoxGeometry face order
-    // (+X, -X, +Y, -Y, +Z, -Z), 6 indices per face
-    if (geometry.groups.length === 0) {
-      for (let f = 0; f < 6; f++) {
-        geometry.addGroup(f * 6, 6, f);
-      }
-    }
-  } catch {
-    geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  }
+  // Always use procedural rounded box for smooth edges instead of low-poly GLB
+  const geometry = createRoundedBoxWithGroups(0.5, 0.08, 6);
 
   cachedDieGeometry = geometry;
   cachedBaseMaterials = materials;

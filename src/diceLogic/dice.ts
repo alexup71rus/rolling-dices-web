@@ -3,12 +3,19 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { createFaceTexture } from "./textures";
 import { diceSettings } from "./settings";
+import { createRoundedBoxWithGroups } from "../scene/DiceGeometry";
 
 // Создание материалов для граней кубика
-export function createDiceMaterials(): THREE.MeshPhongMaterial[] {
+export function createDiceMaterials(): THREE.MeshStandardMaterial[] {
   const faceOrder = [2, 5, 1, 6, 3, 4];
   return faceOrder.map(
-    (num) => new THREE.MeshPhongMaterial({ map: createFaceTexture(num) }),
+    (num) => new THREE.MeshPhysicalMaterial({ 
+      map: createFaceTexture(num),
+      roughness: 0.15,
+      metalness: 0.05,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.15
+    })
   );
 }
 
@@ -169,7 +176,7 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
   );
 
   for (let i = 0; i < diceSettings.numberOfDice; i++) {
-    const geo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const geo = createRoundedBoxWithGroups(0.5, 0.08, 6);
     let materials = baseMaterials.map((mat) => {
       return mat.clone(); // По умолчанию копируем стандартные материалы с текстурами
     });
@@ -189,9 +196,13 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
         // Создаем материалы с цветом + текстурами
         materials = baseMaterials.map(
           (mat) =>
-            new THREE.MeshPhongMaterial({
+            new THREE.MeshPhysicalMaterial({
               color: baseColor, // Цвет (бронза/серебро)
               map: mat.map, // Сохранение текстуры номера
+              roughness: 0.2,
+              metalness: 0.8, // Делаем их более "металлическими"
+              clearcoat: 0.5,
+              clearcoatRoughness: 0.2
             }),
         );
       }

@@ -36,13 +36,17 @@ export function initSceneWrapper(
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   // Свет
   const light = new THREE.DirectionalLight(
     sceneSettings.light.color,
-    sceneSettings.light.intensity,
+    sceneSettings.light.intensity * 1.5,
   );
   light.castShadow = true;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  light.shadow.bias = -0.0001;
   light.position.set(
     sceneSettings.light.position.x,
     sceneSettings.light.position.y,
@@ -60,13 +64,94 @@ export function initSceneWrapper(
     sceneSettings.plane.width,
     sceneSettings.plane.height,
   );
-  const planeMat = new THREE.MeshPhongMaterial({
-    color: sceneSettings.plane.color,
+  
+  const canvasTexture = document.createElement('canvas');
+  canvasTexture.width = 2048;
+  canvasTexture.height = 2048;
+  const context = canvasTexture.getContext('2d');
+  if (context) {
+    context.fillStyle = '#4a2c11';
+    context.fillRect(0, 0, 2048, 2048);
+    for (let i = 0; i < 2000; i++) {
+      context.fillStyle = Math.random() > 0.5 ? 'rgba(40, 20, 10, 0.15)' : 'rgba(80, 45, 20, 0.1)';
+      const y = Math.random() * 2048;
+      const h = Math.random() * 10 + 2;
+      context.fillRect(0, y, 2048, h);
+      if (i % 5 === 0) {
+         context.fillStyle = 'rgba(30, 15, 5, 0.05)';
+         context.beginPath();
+         context.ellipse(Math.random() * 2048, y, Math.random() * 300 + 50, h * 3, 0, 0, Math.PI * 2);
+         context.fill();
+      }
+    }
+    for (let i = 0; i < 300; i++) {
+      const isDeep = Math.random() > 0.8;
+      context.fillStyle = isDeep ? 'rgba(20, 10, 2, 0.5)' : 'rgba(35, 18, 8, 0.3)';
+      const x = Math.random() * 2048;
+      const y = Math.random() * 2048;
+      const w = (Math.random() * 2 + 1) * (isDeep ? 2 : 1);
+      const h = Math.random() * 15 + 5;
+      context.save();
+      context.translate(x, y);
+      context.rotate((Math.random() - 0.5) * 0.5);
+      context.fillRect(0, 0, w, h);
+      context.restore();
+    }
+  }
+  
+  const woodTexture = new THREE.CanvasTexture(canvasTexture);
+  woodTexture.colorSpace = THREE.SRGBColorSpace;
+  woodTexture.wrapS = THREE.RepeatWrapping;
+  woodTexture.wrapT = THREE.RepeatWrapping;
+  woodTexture.repeat.set(1, 1);
+  
+  const bumpTexture = new THREE.CanvasTexture(canvasTexture);
+  bumpTexture.wrapS = THREE.RepeatWrapping;
+  bumpTexture.wrapT = THREE.RepeatWrapping;
+  bumpTexture.repeat.set(1, 1);
+
+  const planeMat = new THREE.MeshPhysicalMaterial({
+    map: woodTexture,
+    bumpMap: bumpTexture,
+    bumpScale: 0.015,
+    roughness: 0.85,
+    metalness: 0.05,
+    clearcoat: 0.05,
   });
   const planeMesh = new THREE.Mesh(planeGeo, planeMat);
   planeMesh.rotation.x = sceneSettings.plane.rotationX;
   planeMesh.receiveShadow = true;
   scene.add(planeMesh);
+
+  // Добавляем бортики
+  const borderMat = new THREE.MeshPhysicalMaterial({
+    map: woodTexture,
+    bumpMap: bumpTexture,
+    bumpScale: 0.01,
+    roughness: 0.9,
+    color: 0x8b5a2b,
+    clearcoat: 0.1
+  });
+
+  const tbGeo = new THREE.BoxGeometry(sceneSettings.plane.width, 0.6, 0.5);
+  const lrGeo = new THREE.BoxGeometry(0.5, 0.6, sceneSettings.plane.height - 0.5);
+  const bw = sceneSettings.plane.width / 2;
+  const bh = sceneSettings.plane.height / 2;
+
+  const borders = [
+    { geo: tbGeo, pos: [0, 0.3, -bh + 0.25] },
+    { geo: tbGeo, pos: [0, 0.3, bh - 0.25] },
+    { geo: lrGeo, pos: [-bw + 0.25, 0.3, 0] },
+    { geo: lrGeo, pos: [bw - 0.25, 0.3, 0] },
+  ];
+
+  borders.forEach(b => {
+    const borderMesh = new THREE.Mesh(b.geo, borderMat);
+    borderMesh.position.set(b.pos[0] as number, b.pos[1] as number, b.pos[2] as number);
+    borderMesh.receiveShadow = true;
+    borderMesh.castShadow = true;
+    scene.add(borderMesh);
+  });
 
   // Физический мир
   const world = new CANNON.World();
@@ -118,13 +203,13 @@ export function initSceneWrapper(
           }
 
           if (Array.isArray(object.material)) {
-            object.material.forEach((mat: THREE.Material) => {
-              if (mat instanceof THREE.MeshPhongMaterial) {
+            object.material.forEach((mat: any) => {
+              if (mat.emissive) {
                 mat.emissive.set(color);
               }
             });
-          } else if (object.material instanceof THREE.MeshPhongMaterial) {
-            object.material.emissive.set(color);
+          } else if ((object.material as any).emissive) {
+            (object.material as any).emissive.set(color);
           }
         };
         if (diceItem.selected) {
