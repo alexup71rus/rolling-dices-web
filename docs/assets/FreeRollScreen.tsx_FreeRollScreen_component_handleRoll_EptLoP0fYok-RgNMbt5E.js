@@ -1,0 +1,1 @@
+import{i as a}from"./core.prod-CedhM68u.js";import{j as f}from"./core.prod-CedhM68u.js";import"./preloader-C-Y9QxqI.js";const c=async()=>{const[l,e,r]=a(),o=l.value;if(!o||e.value)return;e.value=!0;const t=await o.roll();r.value=t,e.value=!1};export{f as _hW,c as s_EptLoP0fYok};

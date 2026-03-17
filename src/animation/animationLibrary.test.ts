@@ -1,4 +1,3 @@
-// src/animation/animationLibrary.test.ts
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { loadManifest, pickAnimation, clearManifestCache, type AnimationData } from './animationLibrary';
 

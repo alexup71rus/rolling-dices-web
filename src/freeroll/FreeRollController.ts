@@ -1,6 +1,7 @@
-// src/freeroll/FreeRollController.ts
 import type { SceneRefs } from '../scene/sceneSetup';
 import type { DiceMeshEntry } from '../scene/DiceRenderer';
+import type { DieType } from '../game/diceModifiers';
+import { createDie, performRoll, buildModifiersFromConfig } from '../game/diceModifiers';
 import { pickAnimation } from '../animation/animationLibrary';
 import { playAnimation } from '../animation/AnimationPlayer';
 import { initScene, disposeScene } from '../scene/sceneSetup';
@@ -14,12 +15,19 @@ export interface FreeRollController {
 export async function createFreeRollController(
   canvas: HTMLCanvasElement,
   diceCount: number,
+  diceConfig?: DieType[],
 ): Promise<FreeRollController> {
   const refs: SceneRefs = await initScene(canvas);
   const { scene, world, renderer, camera } = refs;
 
   let entries: DiceMeshEntry[] = await createDiceEntries(diceCount, scene, world);
   let rolling = false;
+
+  const config = diceConfig && diceConfig.length === diceCount
+    ? diceConfig
+    : Array.from({ length: diceCount }, () => 'normal' as DieType);
+  const dice = config.map(t => createDie(t));
+  const modifiers = buildModifiersFromConfig(config);
 
   let rafId: number;
   function renderLoop() {
@@ -32,12 +40,10 @@ export async function createFreeRollController(
     if (rolling) return [];
     rolling = true;
 
-    // Generate random values 1-6 for each die
-    const values = Array.from({ length: diceCount }, () => Math.floor(Math.random() * 6) + 1);
+    const values = performRoll(dice, modifiers);
 
     const animData = await pickAnimation(diceCount).catch(() => null);
     if (animData) {
-      // Use as many entries as the animation supports
       const animCount = Math.min(diceCount, animData.diceCount);
       const activeEntries = entries.slice(0, animCount);
       const activeValues = values.slice(0, animCount);

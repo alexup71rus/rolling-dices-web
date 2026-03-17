@@ -1,0 +1,1 @@
+import{i}from"./core.prod-CedhM68u.js";import{D as c}from"./FreeRollSetupScreen-BezU9BV5.js";import"./preloader-C-Y9QxqI.js";import"./preload-helper-C4qcXjda.js";const l=()=>{const[e,o]=i(),t=[];for(const{type:r}of c)for(let s=0;s<e[r];s++)t.push(r);o.diceConfig=t,o.screen="freeroll"};export{l as s_G60sGtiRI0Q};

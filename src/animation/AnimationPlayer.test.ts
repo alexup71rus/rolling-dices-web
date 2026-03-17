@@ -1,4 +1,3 @@
-// src/animation/AnimationPlayer.test.ts
 import { describe, expect, it } from 'vitest';
 import { interpolateFrame } from './AnimationPlayer';
 import type { AnimationFrame } from './animationLibrary';

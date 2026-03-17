@@ -1,4 +1,3 @@
-// src/app.tsx
 import { component$, useStore, useContextProvider } from '@builder.io/qwik';
 import { GameContext, type GameStore } from './game/gameState';
 import type { DieType } from './game/diceModifiers';

@@ -1,4 +1,3 @@
-// src/game/integration.test.ts
 import { describe, expect, it } from 'vitest';
 import { createDie, performRoll, buildModifiersFromConfig, type DieType } from './diceModifiers';
 import { detectCombinations, scoreCombinations, isFarkle, isHotDice } from './scoring';

@@ -1,4 +1,3 @@
-// src/game/GameScreen.tsx
 import { component$, noSerialize, useContext, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from './gameState';
 import { detectCombinations, scoreCombinations } from './scoring';
@@ -37,66 +36,57 @@ export const GameScreen = component$(() => {
       controllerRef.value = null;
     }
 
-    // Keyboard handler
     const onKeyDown = (e: KeyboardEvent) => {
       if (!ctrl) return;
       const p = ctrl.getPhase();
       const isSelecting = p === 'selecting' || p === 'hot-dice';
-      const key = e.key.toLowerCase();
 
-      // ESC — deselect all
       if (e.key === 'Escape' && isSelecting) {
         e.preventDefault();
         ctrl.deselectAll();
         return;
       }
 
-      // Arrow/WASD navigation
-      if ((key === 'arrowleft' || key === 'a') && isSelecting) {
+      if ((e.key === 'ArrowLeft' || e.code === 'KeyA') && isSelecting) {
         e.preventDefault();
         ctrl.moveFocus('left');
         return;
       }
-      if ((key === 'arrowright' || key === 'd') && isSelecting) {
+      if ((e.key === 'ArrowRight' || e.code === 'KeyD') && isSelecting) {
         e.preventDefault();
         ctrl.moveFocus('right');
         return;
       }
-      if ((key === 'arrowup' || key === 'w') && isSelecting) {
+      if ((e.key === 'ArrowUp' || e.code === 'KeyW') && isSelecting) {
         e.preventDefault();
         ctrl.moveFocus('up');
         return;
       }
-      if ((key === 'arrowdown' || key === 's') && isSelecting) {
+      if ((e.key === 'ArrowDown' || e.code === 'KeyS') && isSelecting) {
         e.preventDefault();
         ctrl.moveFocus('down');
         return;
       }
 
-      // Enter / Space — toggle selection on focused die
       if ((e.key === 'Enter' || e.key === ' ') && isSelecting) {
         e.preventDefault();
         ctrl.toggleFocusedSelection();
         return;
       }
 
-      // N — new game
-      if (key === 'n') {
+      if (e.code === 'KeyN') {
         e.preventDefault();
         store.screen = 'setup';
         return;
       }
 
-      // E — score and roll again (commit + roll)
-      if (key === 'e' && (p === 'idle' || isSelecting)) {
+      if (e.code === 'KeyE' && (p === 'idle' || isSelecting)) {
         e.preventDefault();
-        // Simulate clicking the roll button
         document.querySelector<HTMLButtonElement>('.btn-roll:not(.btn-disabled)')?.click();
         return;
       }
 
-      // F — end turn (bank) or next turn (farkle)
-      if (key === 'f') {
+      if (e.code === 'KeyF') {
         if (isSelecting) {
           e.preventDefault();
           document.querySelector<HTMLButtonElement>('.btn-bank:not(.btn-disabled)')?.click();
@@ -109,7 +99,6 @@ export const GameScreen = component$(() => {
         }
       }
 
-      // Farkle phase — Enter/Space to continue
       if (p === 'farkle' && farkleButtonVisible.value) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();

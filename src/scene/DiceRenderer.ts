@@ -1,4 +1,3 @@
-// src/scene/DiceRenderer.ts
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { createRoundedBoxWithGroups } from './DiceGeometry';

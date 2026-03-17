@@ -1,5 +1,3 @@
-// src/game/diceModifiers.ts
-
 export type DieType = 'normal' | 'biased-1' | 'biased-5' | 'lucky' | 'unlucky';
 
 export interface Die {

@@ -1,4 +1,3 @@
-// src/game/diceModifiers.test.ts
 import { describe, expect, it } from 'vitest';
 import {
   createDie,

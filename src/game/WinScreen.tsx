@@ -1,4 +1,3 @@
-// src/game/WinScreen.tsx
 import { component$, useContext, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from './gameState';
 
@@ -7,7 +6,7 @@ export const WinScreen = component$(() => {
 
   useVisibleTask$(({ cleanup }) => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key.toLowerCase() === 'n') {
+      if (e.key === 'Enter' || e.code === 'KeyN') {
         e.preventDefault();
         document.querySelector<HTMLButtonElement>('.win-play-again-btn')?.click();
       }

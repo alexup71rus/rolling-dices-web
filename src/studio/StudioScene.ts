@@ -1,4 +1,3 @@
-// src/studio/StudioScene.ts
 import { initScene, disposeScene } from '../scene/sceneSetup';
 import { createDiceEntries, syncMeshesToBodies, type DiceMeshEntry } from '../scene/DiceRenderer';
 import { AnimationRecorder } from '../animation/AnimationRecorder';

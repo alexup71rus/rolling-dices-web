@@ -1,4 +1,3 @@
-// src/studio/StudioScreen.tsx
 import { $, component$, noSerialize, type NoSerialize, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import type { StudioSceneHandle } from './StudioScene';
 

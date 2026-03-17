@@ -1,4 +1,3 @@
-// src/animation/AnimationRecorder.test.ts
 import { describe, expect, it } from 'vitest';
 import * as CANNON from 'cannon-es';
 import { AnimationRecorder } from './AnimationRecorder';

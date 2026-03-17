@@ -1,4 +1,3 @@
-// src/game/SetupScreen.tsx
 import { component$, useContext, useSignal, useStore, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from './gameState';
 import type { DieType } from './diceModifiers';

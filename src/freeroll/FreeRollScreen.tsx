@@ -1,4 +1,3 @@
-// src/freeroll/FreeRollScreen.tsx
 import { $, component$, noSerialize, useContext, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from '../game/gameState';
 import type { FreeRollController } from './FreeRollController';
@@ -16,10 +15,9 @@ export const FreeRollScreen = component$(() => {
     let ctrl: FreeRollController | null = null;
     try {
       const { createFreeRollController } = await import('./FreeRollController');
-      ctrl = await createFreeRollController(canvasRef.value, store.freerollDiceCount);
+      ctrl = await createFreeRollController(canvasRef.value, store.freerollDiceCount, [...store.diceConfig]);
       controllerRef.value = noSerialize(ctrl);
 
-      // Auto-roll on load
       rolling.value = true;
       const result = await ctrl.roll();
       values.value = result;
@@ -28,7 +26,6 @@ export const FreeRollScreen = component$(() => {
       sceneError.value = err instanceof Error ? err.message : 'Failed to initialize 3D scene';
     }
 
-    // Keyboard handler
     const onKeyDown = async (e: KeyboardEvent) => {
       if (!ctrl) return;
       if ((e.key === 'Enter' || e.key === ' ') && !rolling.value) {

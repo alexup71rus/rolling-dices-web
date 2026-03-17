@@ -1,2 +1,0 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-Cm9y0mbJ.css"])))=>i.map(i=>d[i]);
-import{c as r,q as o,r as _,_ as e}from"./core.prod-CGJnmN-j.js";import{_ as t}from"./preload-helper-C4qcXjda.js";import"./preloader-C-Y9QxqI.js";const m=r(o(()=>t(()=>import("./app.tsx_App_component_AkbU84a8zes-C06L-gQY.js"),__vite__mapDeps([0])),"s_AkbU84a8zes"));_(document.getElementById("app"),e(m,null,3,"Rj_1"));

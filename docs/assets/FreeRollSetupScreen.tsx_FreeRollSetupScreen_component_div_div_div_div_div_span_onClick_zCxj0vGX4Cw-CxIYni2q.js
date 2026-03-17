@@ -1,0 +1,1 @@
+import{i as t}from"./core.prod-CedhM68u.js";import"./preloader-C-Y9QxqI.js";const s=()=>{const[e,r,o]=t();o!=="normal"&&(e[o]<=0||(e[o]--,e.normal=r.freerollDiceCount-(e["biased-1"]+e["biased-5"]+e.lucky+e.unlucky)))};export{s as s_zCxj0vGX4Cw};

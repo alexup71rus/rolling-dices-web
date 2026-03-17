@@ -1,4 +1,3 @@
-// src/animation/textureRemap.test.ts
 import { describe, expect, it } from 'vitest';
 import { buildRemappedMaterials } from './textureRemap';
 

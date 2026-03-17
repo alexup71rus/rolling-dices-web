@@ -1,4 +1,3 @@
-// diceLogic/walls.ts
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
@@ -29,7 +28,6 @@ export function createWalls(scene: THREE.Scene, world: CANNON.World) {
     mesh.receiveShadow = false;
     mesh.rotation.y = rotY;
     _mesh.rotation.y = rotY;
-    // scene.add(mesh);
     scene.add(mesh);
     const shape = new CANNON.Box(
       new CANNON.Vec3(

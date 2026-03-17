@@ -1,5 +1,3 @@
-// src/animation/animationLibrary.ts
-
 export interface AnimationFrame {
   t: number;
   dice: { px: number; py: number; pz: number; qx: number; qy: number; qz: number; qw: number }[];

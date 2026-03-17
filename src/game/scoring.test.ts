@@ -1,4 +1,3 @@
-// src/game/scoring.test.ts
 import { describe, expect, it } from 'vitest';
 import { detectCombinations, isHotDice, isFarkle, scoreCombinations } from './scoring';
 

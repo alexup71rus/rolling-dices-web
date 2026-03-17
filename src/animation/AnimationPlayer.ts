@@ -1,4 +1,3 @@
-// src/animation/AnimationPlayer.ts
 import * as THREE from 'three';
 import type { AnimationData, AnimationFrame } from './animationLibrary';
 import type { DiceMeshEntry } from '../scene/DiceRenderer';

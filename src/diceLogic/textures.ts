@@ -1,4 +1,3 @@
-// diceLogic/textures.ts
 import * as THREE from "three";
 
 export function createFaceTexture(num: number): THREE.CanvasTexture {

@@ -1,4 +1,3 @@
-// src/animation/textureRemap.ts
 import type * as THREE from 'three';
 import { FACE_ORDER } from '../scene/DiceRenderer';
 

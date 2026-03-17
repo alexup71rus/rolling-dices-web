@@ -1,1 +1,0 @@
-import{i as r}from"./core.prod-CGJnmN-j.js";import"./preloader-C-Y9QxqI.js";const s=()=>{const[e]=r();e.screen="setup",e.totalScore=0,e.turnScore=0,e.diceConfig=["normal","normal","normal","normal","normal","normal"],e.diceState=Array.from({length:6},(t,o)=>({value:0,selected:!1,setAside:!1,scoreContribution:0,dieType:"normal",meshIndex:o}))};export{s as s_98Ddta6V8Vk};

@@ -1,4 +1,3 @@
-// src/components/ModeSelectScreen.tsx
 import { component$, useContext, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import { GameContext } from '../game/gameState';
 
@@ -9,7 +8,7 @@ export const ModeSelectScreen = component$(() => {
   useVisibleTask$(({ cleanup }) => {
     const onKeyDown = (e: KeyboardEvent) => {
       const key = e.key;
-      if (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'a' || key === 'd') {
+      if (key === 'ArrowLeft' || key === 'ArrowRight' || e.code === 'KeyA' || e.code === 'KeyD') {
         e.preventDefault();
         selected.value = selected.value === 0 ? 1 : 0;
         return;

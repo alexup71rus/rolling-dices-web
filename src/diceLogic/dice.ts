@@ -1,11 +1,9 @@
-// diceLogic/dice.ts
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { createFaceTexture } from "./textures";
 import { diceSettings } from "./settings";
 import { createRoundedBoxWithGroups } from "../scene/DiceGeometry";
 
-// Создание материалов для граней кубика
 export function createDiceMaterials(): THREE.MeshStandardMaterial[] {
   const faceOrder = [2, 5, 1, 6, 3, 4];
   return faceOrder.map(
@@ -37,7 +35,6 @@ export const adjacentFacesDice: { [face: number]: number[] } = {
   6: [2, 3, 4, 5],
 };
 
-// Определяем, какая грань кубика выпала
 export function getRolledFace(body: CANNON.Body): number {
   const faces = Object.entries(diceFaceNormals).map(([id, normal]) => ({
     id: Number(id),
@@ -63,7 +60,6 @@ export function getRolledFace(body: CANNON.Body): number {
   return bestFace.id;
 }
 
-// Переворачиваем кубик к нужной грани
 export function rigDiceToFace(
   dice: { body: CANNON.Body; mesh: THREE.Mesh; selected?: boolean }[],
   specialDiceSettings: { face: number; attempts: number }[],
@@ -123,7 +119,6 @@ export function rigDiceToFace(
   });
 }
 
-// Функция поиска пути переворота
 function findFaceFlipPath(currentFace: number, targetFace: number): number[] {
   if (currentFace === targetFace) return [currentFace];
   const queue: number[][] = [[currentFace]];
@@ -144,7 +139,6 @@ function findFaceFlipPath(currentFace: number, targetFace: number): number[] {
   return [];
 }
 
-// Вычисление импульса и крутящего момента для переворота
 function computeFlipImpulseAndTorque(
   body: CANNON.Body,
   fromFace: number,
@@ -165,12 +159,10 @@ function computeFlipImpulseAndTorque(
   return { impulseVec, torqueVec };
 }
 
-// Создание кубиков
 export function createDice(scene: THREE.Scene, world: CANNON.World) {
   const dice = [];
   const baseMaterials = createDiceMaterials();
 
-  // Загружаем настройки особых кубиков
   const specialDiceSettings = JSON.parse(
     localStorage.getItem("specialDiceSettings") || "[]",
   );
@@ -178,10 +170,9 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
   for (let i = 0; i < diceSettings.numberOfDice; i++) {
     const geo = createRoundedBoxWithGroups(0.5, 0.08, 6);
     let materials = baseMaterials.map((mat) => {
-      return mat.clone(); // По умолчанию копируем стандартные материалы с текстурами
+      return mat.clone();
     });
 
-    // Проверяем, есть ли настройки для этого кубика
     const specialDice = specialDiceSettings[i];
     if (specialDice) {
       let baseColor: number | null = null;
@@ -197,10 +188,10 @@ export function createDice(scene: THREE.Scene, world: CANNON.World) {
         materials = baseMaterials.map(
           (mat) =>
             new THREE.MeshPhysicalMaterial({
-              color: baseColor, // Цвет (бронза/серебро)
-              map: mat.map, // Сохранение текстуры номера
+              color: baseColor,
+              map: mat.map,
               roughness: 0.2,
-              metalness: 0.8, // Делаем их более "металлическими"
+              metalness: 0.8,
               clearcoat: 0.5,
               clearcoatRoughness: 0.2
             }),

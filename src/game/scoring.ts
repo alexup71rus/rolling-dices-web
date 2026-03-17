@@ -1,5 +1,3 @@
-// src/game/scoring.ts
-
 export type Combination =
   | { type: 'single'; face: number; diceIndices: number[]; points: number }
   | { type: 'triple'; face: number; diceIndices: number[]; points: number }

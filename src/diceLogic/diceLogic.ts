@@ -1,4 +1,3 @@
-// diceLogic/diceLogic.ts
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { sceneSettings } from "./settings";
@@ -38,7 +37,6 @@ export function initSceneWrapper(
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  // Свет
   const light = new THREE.DirectionalLight(
     sceneSettings.light.color,
     sceneSettings.light.intensity * 1.5,
@@ -59,7 +57,6 @@ export function initSceneWrapper(
   );
   scene.add(ambient);
 
-  // Плоскость
   const planeGeo = new THREE.PlaneGeometry(
     sceneSettings.plane.width,
     sceneSettings.plane.height,
@@ -123,7 +120,6 @@ export function initSceneWrapper(
   planeMesh.receiveShadow = true;
   scene.add(planeMesh);
 
-  // Добавляем бортики
   const borderMat = new THREE.MeshPhysicalMaterial({
     map: woodTexture,
     bumpMap: bumpTexture,
@@ -153,7 +149,6 @@ export function initSceneWrapper(
     scene.add(borderMesh);
   });
 
-  // Физический мир
   const world = new CANNON.World();
   world.gravity.copy(sceneSettings.physics.gravity);
   world.defaultContactMaterial.restitution = sceneSettings.physics.restitution;
@@ -168,11 +163,9 @@ export function initSceneWrapper(
   );
   world.addBody(groundBody);
 
-  // Добавляем стены и кубики
   createWalls(scene, world);
   const dice = createDice(scene, world);
 
-  // Обработка кликов по кубикам
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
     const mouse = new THREE.Vector2(
@@ -197,9 +190,6 @@ export function initSceneWrapper(
         diceItem.selected = !diceItem.selected;
         console.log(`Кубик ${diceIndex}: selected = ${diceItem.selected}`);
         
-        // Emissive-подсветка была удалена, сейчас используется круговая обводка в GameSceneController.ts
-        // Этот файл (diceLogic.ts) видимо легаси, но на всякий случай оставляем логику клика
-        
         const rolledFace = getRolledFace(diceItem.body);
         options?.onDiceClick?.(diceIndex, rolledFace);
       }
@@ -217,9 +207,7 @@ export function initSceneWrapper(
   }
   animate();
 
-  // Функция броска кубиков
   function rollAllDice() {
-    // Загружаем настройки особых кубиков
     const specialDiceSettings = JSON.parse(
       localStorage.getItem("specialDiceSettings") || "[]",
     );
@@ -245,7 +233,6 @@ export function initSceneWrapper(
     rigDiceToFace(dice, specialDiceSettings);
   }
 
-  // Функция отложения выбранных кубиков
   function setAsideSelectedDice() {
     const setAsideValues: number[] = [];
     dice.forEach((diceItem) => {

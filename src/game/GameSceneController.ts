@@ -1,4 +1,3 @@
-// src/game/GameSceneController.ts
 import * as THREE from 'three';
 import type { SceneRefs } from '../scene/sceneSetup';
 import type { DiceMeshEntry } from '../scene/DiceRenderer';

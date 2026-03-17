@@ -1,4 +1,3 @@
-// src/animation/AnimationRecorder.ts
 import * as CANNON from 'cannon-es';
 import type { AnimationData, AnimationFrame } from './animationLibrary';
 
