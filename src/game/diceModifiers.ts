@@ -33,6 +33,7 @@ export function applyModifiers(dice: Die[], modifiers: Modifier[]): void {
   const sorted = [...modifiers].sort((a, b) => b.power - a.power);
   for (const mod of sorted) {
     for (const idx of mod.targetDiceIndices) {
+      if (idx < 0 || idx >= dice.length) continue;
       const w = dice[idx].weights;
       if (mod.effectType === 'boost') {
         w[mod.params.face - 1] += mod.params.amount * (mod.power / 5);
@@ -79,7 +80,7 @@ export function rollDice(dice: Die[]): number[] {
   return dice.map(die => {
     const w = die.weights;
     const total = w.reduce((a, b) => a + b, 0);
-    if (total <= 0) return Math.ceil(Math.random() * 6);
+    if (total <= 0) return Math.floor(Math.random() * 6) + 1;
     let r = Math.random() * total;
     for (let i = 0; i < 6; i++) {
       r -= w[i];
