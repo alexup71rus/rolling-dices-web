@@ -1,13 +1,11 @@
 // src/game/scoring.ts
 
-export type CombinationType = 'single' | 'triple' | 'straight';
+export type Combination =
+  | { type: 'single'; face: number; diceIndices: number[]; points: number }
+  | { type: 'triple'; face: number; diceIndices: number[]; points: number }
+  | { type: 'straight'; diceIndices: number[]; points: number };
 
-export interface Combination {
-  type: CombinationType;
-  face?: number;       // present for 'single' and 'triple'
-  diceIndices: number[];
-  points: number;
-}
+export type CombinationType = Combination['type'];
 
 const TRIPLE_POINTS: Record<number, number> = {
   1: 1000, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600,
@@ -39,10 +37,12 @@ export function detectCombinations(faces: number[]): Combination[] {
     const indices = faces
       .map((v, i) => (v === face && !used.has(i) ? i : -1))
       .filter(i => i !== -1);
-    if (indices.length >= 3) {
-      const triple = indices.slice(0, 3);
+    let remaining = indices;
+    while (remaining.length >= 3) {
+      const triple = remaining.slice(0, 3);
       triple.forEach(i => used.add(i));
       combos.push({ type: 'triple', face, diceIndices: triple, points: TRIPLE_POINTS[face] });
+      remaining = remaining.slice(3);
     }
   }
 
@@ -64,8 +64,8 @@ export function scoreCombinations(combos: Combination[]): number {
  * Returns true if every die index in `activeIndices` is covered by
  * at least one combination (used for Hot Dice detection).
  */
-export function isHotDice(faces: number[], activeIndices: number[]): boolean {
-  const combos = detectCombinations(faces);
+export function isHotDice(faces: number[], activeIndices: number[], precomputedCombos?: Combination[]): boolean {
+  const combos = precomputedCombos ?? detectCombinations(faces);
   const covered = new Set(combos.flatMap(c => c.diceIndices));
   return activeIndices.every(i => covered.has(i));
 }

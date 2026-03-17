@@ -81,6 +81,13 @@ describe('detectCombinations', () => {
     const total = result.reduce((s, c) => s + c.points, 0);
     expect(total).toBe(1100);
   });
+
+  it('six 5s: two triples → 1000pts total', () => {
+    const result = detectCombinations([5, 5, 5, 5, 5, 5]);
+    const total = result.reduce((s, c) => s + c.points, 0);
+    expect(total).toBe(1000);
+    expect(result.filter(c => c.type === 'triple')).toHaveLength(2);
+  });
 });
 
 describe('scoreCombinations', () => {
@@ -120,5 +127,9 @@ describe('isHotDice', () => {
   it('returns false when some active dice are non-scoring', () => {
     // single 1, but dice 1-3 are 2,3,4 — non-scoring
     expect(isHotDice([1, 2, 3, 4], [0, 1, 2, 3])).toBe(false);
+  });
+
+  it('vacuously true for empty activeIndices', () => {
+    expect(isHotDice([], [])).toBe(true);
   });
 });
