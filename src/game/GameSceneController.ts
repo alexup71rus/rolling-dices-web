@@ -54,11 +54,12 @@ export async function createGameSceneController(
     onPhaseChange(p);
   }
 
-  /** Resets emissive highlight on every die mesh. */
+  /** Resets highlight on every die mesh. */
   function clearAllHighlights() {
     for (const entry of entries) {
-      const mats = Array.isArray(entry.mesh.material) ? entry.mesh.material : [entry.mesh.material];
-      mats.forEach((m: any) => { if (m.emissive) m.emissive.set(0x000000); });
+      if (entry.highlightMesh) {
+        entry.highlightMesh.visible = false;
+      }
     }
   }
 
@@ -126,11 +127,14 @@ export async function createGameSceneController(
 
     d.selected = !d.selected;
 
-    // Highlight via emissive
+    // Highlight via outline
     const entry = entries[meshIndex];
-    if (entry) {
-      const mats = Array.isArray(entry.mesh.material) ? entry.mesh.material : [entry.mesh.material];
-      mats.forEach((m: any) => { if (m.emissive) m.emissive.set(d.selected ? 0xaaaaaa : 0x000000); });
+    if (entry && entry.highlightMesh) {
+      entry.highlightMesh.visible = d.selected;
+      if (d.selected) {
+        // Place the highlight circle right under the die
+        entry.highlightMesh.position.set(entry.mesh.position.x, 0.015, entry.mesh.position.z);
+      }
     }
   }
 
@@ -152,6 +156,9 @@ export async function createGameSceneController(
         d.selected = false;
         // Hide the 3D mesh for set-aside dice
         entries[d.meshIndex].mesh.visible = false;
+        if (entries[d.meshIndex].highlightMesh) {
+          entries[d.meshIndex].highlightMesh.visible = false;
+        }
       }
     }
     store.turnScore += pts;

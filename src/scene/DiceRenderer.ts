@@ -11,10 +11,49 @@ export interface DiceMeshEntry {
   mesh: THREE.Mesh;
   body: CANNON.Body;
   baseMaterials: THREE.Material[]; // slot-indexed, unmodified
+  highlightMesh?: THREE.Mesh;
 }
 
 let cachedDieGeometry: THREE.BufferGeometry | null = null;
 let cachedBaseMaterials: THREE.Material[] | null = null;
+let cachedHighlightMaterial: THREE.Material | null = null;
+
+function getHighlightMaterial(): THREE.Material {
+  if (cachedHighlightMaterial) return cachedHighlightMaterial;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.clearRect(0, 0, 128, 128);
+    // Draw a nice glowing outline circle
+    ctx.strokeStyle = '#eab308'; // Amber/Yellow
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.arc(64, 64, 54, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Inner softer glow
+    ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+    ctx.lineWidth = 16;
+    ctx.beginPath();
+    ctx.arc(64, 64, 54, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  cachedHighlightMaterial = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false, // Prevent z-fighting
+    side: THREE.DoubleSide
+  });
+
+  return cachedHighlightMaterial;
+}
 
 function createFallbackMaterials(): THREE.Material[] {
   // Keep distinct faces even when texture assets are missing.
@@ -78,6 +117,9 @@ export async function createDiceEntries(
 ): Promise<DiceMeshEntry[]> {
   const { geometry, materials } = await loadDieAssets();
   const entries: DiceMeshEntry[] = [];
+  
+  const highlightMat = getHighlightMaterial();
+  const highlightGeo = new THREE.PlaneGeometry(0.8, 0.8);
 
   for (let i = 0; i < count; i++) {
     const clonedMats = materials.map(m => m.clone());
@@ -86,21 +128,29 @@ export async function createDiceEntries(
     mesh.userData.meshIndex = i;
     scene.add(mesh);
 
+    const highlightMesh = new THREE.Mesh(highlightGeo, highlightMat);
+    highlightMesh.rotation.x = -Math.PI / 2;
+    highlightMesh.visible = false;
+    scene.add(highlightMesh);
+
     const shape = new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25));
     const body = new CANNON.Body({ mass: 1, shape });
     body.position.set((Math.random() - 0.5) * 4, 5, (Math.random() - 0.5) * 4);
     world.addBody(body);
 
-    entries.push({ mesh, body, baseMaterials: clonedMats });
+    entries.push({ mesh, body, baseMaterials: clonedMats, highlightMesh });
   }
 
   return entries;
 }
 
 export function syncMeshesToBodies(entries: DiceMeshEntry[]): void {
-  for (const { mesh, body } of entries) {
+  for (const { mesh, body, highlightMesh } of entries) {
     mesh.position.copy(body.position as unknown as THREE.Vector3);
     mesh.quaternion.copy(body.quaternion as unknown as THREE.Quaternion);
+    if (highlightMesh) {
+      highlightMesh.position.set(mesh.position.x, 0.015, mesh.position.z);
+    }
   }
 }
 
@@ -109,8 +159,11 @@ export function removeDiceFromScene(
   scene: THREE.Scene,
   world: CANNON.World,
 ): void {
-  for (const { mesh, body } of entries) {
+  for (const { mesh, body, highlightMesh } of entries) {
     scene.remove(mesh);
     world.removeBody(body);
+    if (highlightMesh) {
+      scene.remove(highlightMesh);
+    }
   }
 }

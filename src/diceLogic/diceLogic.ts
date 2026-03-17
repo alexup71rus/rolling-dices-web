@@ -196,27 +196,10 @@ export function initSceneWrapper(
         const diceItem = dice[diceIndex];
         diceItem.selected = !diceItem.selected;
         console.log(`Кубик ${diceIndex}: selected = ${diceItem.selected}`);
-        // Изменяем emissive у материалов
-        const setEmissiveColor = (object: THREE.Object3D, color: number) => {
-          if (!(object instanceof THREE.Mesh)) {
-            return;
-          }
-
-          if (Array.isArray(object.material)) {
-            object.material.forEach((mat: any) => {
-              if (mat.emissive) {
-                mat.emissive.set(color);
-              }
-            });
-          } else if ((object.material as any).emissive) {
-            (object.material as any).emissive.set(color);
-          }
-        };
-        if (diceItem.selected) {
-          setEmissiveColor(clickedMesh, 0xaaaaaa);
-        } else {
-          setEmissiveColor(clickedMesh, 0x000000);
-        }
+        
+        // Emissive-подсветка была удалена, сейчас используется круговая обводка в GameSceneController.ts
+        // Этот файл (diceLogic.ts) видимо легаси, но на всякий случай оставляем логику клика
+        
         const rolledFace = getRolledFace(diceItem.body);
         options?.onDiceClick?.(diceIndex, rolledFace);
       }
