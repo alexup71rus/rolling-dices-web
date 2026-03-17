@@ -38,7 +38,7 @@ export async function createGameSceneController(
 
   const dice = store.diceConfig.map((t: DieType) => createDie(t));
   const modifiers = buildModifiersFromConfig(store.diceConfig);
-  const entries: DiceMeshEntry[] = await createDiceEntries(6, scene, world);
+  let entries: DiceMeshEntry[] = await createDiceEntries(6, scene, world);
   let currentPhase: TurnPhase = 'idle';
 
   // Render loop (no physics — physics only during recording in studio)
@@ -61,7 +61,10 @@ export async function createGameSceneController(
     // Compute outcome
     const activeCount = activeMeshIndices.length;
     const activeDice = activeMeshIndices.map(i => dice[i]);
-    const values = performRoll(activeDice, modifiers);
+    const activeModifiers = modifiers.filter(m =>
+      m.targetDiceIndices.some(i => activeMeshIndices.includes(i))
+    );
+    const values = performRoll(activeDice, activeModifiers);
 
     // Write rolled values into reactive store
     activeMeshIndices.forEach((meshIdx, vi) => {
@@ -87,16 +90,6 @@ export async function createGameSceneController(
     // Hot dice: check if all active dice are part of scoring combos
     const localIndices = activeMeshIndices.map((_, i) => i);
     if (isHotDice(activeValues, localIndices)) {
-      // Auto-commit all scoring dice points to turnScore
-      const combos = detectCombinations(activeValues);
-      const pts = combos.reduce((s, c) => s + c.points, 0);
-      for (const d of store.diceState) {
-        if (!d.setAside && d.value > 0) {
-          d.setAside = true;
-          d.selected = false;
-        }
-      }
-      store.turnScore += pts;
       setPhase('hot-dice');
       return;
     }
@@ -110,14 +103,15 @@ export async function createGameSceneController(
     if (!d || d.setAside) return;
 
     // Only allow toggling dice that are part of a valid combination
-    const activeEntries = store.diceState.filter(s => !s.setAside);
-    const activeValues = activeEntries.map(d => d.value);
+    const activeValues = store.diceState.filter(d => !d.setAside).map(d => d.value);
     const combos = detectCombinations(activeValues);
-    const scoringMeshIndices = new Set(combos.flatMap(c =>
-      c.diceIndices.map(li => activeEntries[li].meshIndex)
-    ));
+    const scoringIndices = new Set(combos.flatMap(c => {
+      // Map local indices back to meshIndex space
+      const activeEntries = store.diceState.filter(s => !s.setAside);
+      return c.diceIndices.map(li => activeEntries[li].meshIndex);
+    }));
 
-    if (!scoringMeshIndices.has(meshIndex)) return; // non-scoring die, ignore click
+    if (!scoringIndices.has(meshIndex)) return; // non-scoring die, ignore click
 
     d.selected = !d.selected;
 
@@ -149,9 +143,7 @@ export async function createGameSceneController(
 
   function bankTurn() {
     if (currentPhase !== 'selecting' && currentPhase !== 'hot-dice') return;
-    if (currentPhase === 'selecting') {
-      commitPendingSelection();
-    }
+    commitPendingSelection();
     store.totalScore += store.turnScore;
     store.turnScore = 0;
     // Reset all dice for next turn
@@ -213,7 +205,7 @@ export async function createGameSceneController(
     dispose: () => {
       cancelAnimationFrame(rafId);
       removeDiceFromScene(entries, scene, world);
-      disposeScene(refs);
+      disposeScene(refs); // removes resize listener + disposes renderer
     },
   };
 }
