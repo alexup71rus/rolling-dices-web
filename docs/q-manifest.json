@@ -1,6 +1,6 @@
 {
 	"version": "1",
-	"manifestHash": "i9rnli",
+	"manifestHash": "q5uc2n",
 	"options": {
 		"target": "client",
 		"buildMode": "production",
@@ -1147,7 +1147,7 @@
 			"size": 6192
 		},
 		"index.html": {
-			"size": 632
+			"size": 3870
 		},
 		"assets/bundle-graph-BHkm-YDs.json": {
 			"name": "bundle-graph.json",
