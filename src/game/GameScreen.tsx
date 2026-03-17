@@ -44,21 +44,18 @@ export const GameScreen = component$(() => {
   const activeDiceState = store.diceState.filter(d => !d.setAside);
   const setAsideDice = store.diceState.filter(d => d.setAside);
   const activeMeshIndices = activeDiceState.map(d => d.meshIndex);
-  const activeValues = activeDiceState.map(d => d.value);
-
-  const selectedLocal = activeDiceState
-    .map((d, i) => d.selected ? i : -1)
-    .filter(i => i !== -1);
-  const anySelected = selectedLocal.length > 0;
+  const anySelected = activeDiceState.some(d => d.selected);
 
   const selectedCombos = (() => {
-    if (activeValues.every(v => v === 0) || !anySelected) return [];
-    const combos = detectCombinations(activeValues);
-    return combos.filter(c => c.diceIndices.every(i => selectedLocal.includes(i)));
+    const selectedDice = activeDiceState.filter(d => d.selected);
+    const selectedValues = selectedDice.map(d => d.value);
+    if (selectedValues.length === 0 || selectedValues.every(v => v === 0)) return [];
+    return detectCombinations(selectedValues);
   })();
 
   const coveredIndices = new Set(selectedCombos.flatMap(c => c.diceIndices));
-  const allSelectedCovered = anySelected && selectedLocal.every(i => coveredIndices.has(i));
+  const selectedCount = activeDiceState.filter(d => d.selected).length;
+  const allSelectedCovered = selectedCount > 0 && coveredIndices.size === selectedCount;
   const selectedPoints = allSelectedCovered ? scoreCombinations(selectedCombos) : 0;
   const hasValidSelection = allSelectedCovered && selectedPoints > 0;
 
@@ -192,9 +189,7 @@ export const GameScreen = component$(() => {
                     if (!hasValidSelection) return;
                     const active = store.diceState.filter(d => !d.setAside);
                     const remaining = active.filter(d => !d.selected).map(d => d.meshIndex);
-                    if (remaining.length > 0) {
-                      await controllerRef.value?.commitAndRoll(remaining);
-                    }
+                    await controllerRef.value?.commitAndRoll(remaining);
                   } else if (phase.value === 'idle') {
                     const activeMesh = store.diceState.filter(d => !d.setAside).map(d => d.meshIndex);
                     await controllerRef.value?.roll(activeMesh);
@@ -203,7 +198,9 @@ export const GameScreen = component$(() => {
               >
                 🎲 {phase.value === 'idle'
                   ? `Бросить все (${activeMeshIndices.length})`
-                  : `Бросить снова (${activeDiceState.filter(d => !d.selected).length})`}
+                  : activeDiceState.every(d => d.selected)
+                    ? `Бросить все (${store.diceState.length})`
+                    : `Бросить снова (${activeDiceState.filter(d => !d.selected).length})`}
               </button>
 
               <button

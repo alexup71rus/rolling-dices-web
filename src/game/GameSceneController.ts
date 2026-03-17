@@ -5,7 +5,7 @@ import type { DiceMeshEntry } from '../scene/DiceRenderer';
 import type { GameStore } from './gameState';
 import type { DieType } from './diceModifiers';
 import { createDie, performRoll, buildModifiersFromConfig } from './diceModifiers';
-import { detectCombinations, isFarkle, isHotDice } from './scoring';
+import { detectCombinations, isFarkle } from './scoring';
 import { pickAnimation } from '../animation/animationLibrary';
 import { playAnimation } from '../animation/AnimationPlayer';
 import { initScene, disposeScene } from '../scene/sceneSetup';
@@ -96,27 +96,6 @@ export async function createGameSceneController(
       return;
     }
 
-    // Hot dice: all dice score — auto-commit them, reset, and go to selecting
-    const localIndices = activeMeshIndices.map((_, i) => i);
-    if (isHotDice(activeValues, localIndices)) {
-      // Select all active dice so commitPendingSelection picks them up
-      for (const mi of activeMeshIndices) {
-        const d = store.diceState.find(d => d.meshIndex === mi);
-        if (d) d.selected = true;
-      }
-      commitPendingSelection();
-      // All 6 dice are now set-aside; un-set-aside them for a fresh roll
-      for (const d of store.diceState) {
-        d.setAside = false;
-        d.selected = false;
-        d.value = 0;
-      }
-      for (const entry of entries) entry.mesh.visible = true;
-      clearAllHighlights();
-      setPhase('idle');
-      return;
-    }
-
     setPhase('selecting');
   }
 
@@ -141,15 +120,10 @@ export async function createGameSceneController(
   /** Commits currently selected dice to set-aside and tallies their score. */
   function commitPendingSelection(): void {
     const active = store.diceState.filter(d => !d.setAside);
-    const activeValues = active.map(d => d.value);
-    const combos = detectCombinations(activeValues);
-    const selectedLocalIndices = active
-      .map((d, i) => (d.selected ? i : -1))
-      .filter(i => i !== -1);
-    const selectedCombos = combos.filter(c =>
-      c.diceIndices.every(i => selectedLocalIndices.includes(i))
-    );
-    const pts = selectedCombos.reduce((s, c) => s + c.points, 0);
+    const selected = active.filter(d => d.selected);
+    const selectedValues = selected.map(d => d.value);
+    const combos = detectCombinations(selectedValues);
+    const pts = combos.reduce((s, c) => s + c.points, 0);
     for (const d of store.diceState) {
       if (d.selected) {
         d.setAside = true;
@@ -218,7 +192,19 @@ export async function createGameSceneController(
     roll: async (activeMeshIndices) => { await roll(activeMeshIndices); },
     commitAndRoll: async (remainingMeshIndices) => {
       commitPendingSelection();
-      await roll(remainingMeshIndices);
+      if (remainingMeshIndices.length === 0) {
+        // Hot dice: all dice scored — reset and roll all 6
+        for (const d of store.diceState) {
+          d.setAside = false;
+          d.selected = false;
+          d.value = 0;
+        }
+        for (const entry of entries) entry.mesh.visible = true;
+        clearAllHighlights();
+        await roll(store.diceState.map(d => d.meshIndex));
+      } else {
+        await roll(remainingMeshIndices);
+      }
     },
     onDiceClick,
     bankTurn,
