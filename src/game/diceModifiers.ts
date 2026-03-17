@@ -20,6 +20,36 @@ const BASE_WEIGHTS: Record<DieType, number[]> = {
   'unlucky':  [1, 1, 1, 1, 1, 1],
 };
 
+// TEMP TEST MODE: enables deterministic 100% special-dice outcomes in DEV only.
+// Activate with `?test-special-dice-100=1` in the URL.
+const SPECIAL_DICE_TEST_PARAM = 'test-special-dice-100';
+
+function isSpecialDiceTestModeEnabled(): boolean {
+  if (!import.meta.env.DEV) return false;
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get(SPECIAL_DICE_TEST_PARAM) === '1';
+}
+
+function rollSingleDie(die: Die): number {
+  const [v] = rollDice([die]);
+  return v;
+}
+
+function rollWithSpecialDiceTestMode(dice: Die[]): number[] {
+  const pool = dice.filter(d => d.type !== 'lucky' && d.type !== 'unlucky');
+  const targetFace = getBestExpectedFace(pool);
+  const luckyFace = targetFace === -1 ? 1 : targetFace;
+  const unluckyFace = luckyFace === 1 ? 2 : 1;
+
+  return dice.map(die => {
+    if (die.type === 'biased-1') return 1;
+    if (die.type === 'biased-5') return 5;
+    if (die.type === 'lucky') return luckyFace;
+    if (die.type === 'unlucky') return unluckyFace;
+    return rollSingleDie(die);
+  });
+}
+
 export function createDie(type: DieType): Die {
   const base = [...BASE_WEIGHTS[type]];
   return { baseWeights: base, weights: [...base], type };
@@ -99,6 +129,9 @@ export function performRoll(dice: Die[], modifiers: Modifier[]): number[] {
   applyModifiers(dice, modifiers);
   resolveLuckyDice(dice);
   clampWeights(dice);
+  if (isSpecialDiceTestModeEnabled()) {
+    return rollWithSpecialDiceTestMode(dice);
+  }
   return rollDice(dice);
 }
 

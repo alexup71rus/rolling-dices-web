@@ -1,0 +1,344 @@
+/* src/game/GameScreen.css */
+
+.game-root {
+  display: flex;
+  height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #0d1117;
+}
+
+/* ── Canvas area ── */
+
+.scene-area {
+  flex: 1;
+  position: relative;
+  background: #080c14;
+  overflow: hidden;
+}
+
+.scene-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Overlays on canvas (pointer-events: none so clicks pass through) ── */
+
+.overlay {
+  pointer-events: none;
+}
+
+.scene-error {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  background: rgba(127, 29, 29, 0.9);
+  color: #fecaca;
+  border: 1px solid #991b1b;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  max-width: 380px;
+}
+
+.test-mode-badge {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  background: rgba(180, 120, 10, 0.9);
+  color: #fff7d6;
+  border: 1px solid #92400e;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  max-width: 420px;
+}
+
+.set-aside-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.set-aside-label {
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.set-aside-die {
+  text-align: center;
+}
+
+.set-aside-die-icon {
+  font-size: 22px;
+  opacity: 0.45;
+}
+
+.set-aside-die-pts {
+  font-size: 9px;
+  color: #4ade80;
+  margin-top: 1px;
+}
+
+/* ── Farkle banner ── */
+
+.farkle-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(42, 10, 10, 0.92);
+  border: 2px solid #7f1d1d;
+  border-radius: 12px;
+  padding: 20px 32px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  animation: banner-pop 0.3s ease-out;
+}
+
+.farkle-title {
+  font-size: 22px;
+  color: #f87171;
+  font-weight: 700;
+}
+
+.farkle-sub {
+  font-size: 12px;
+  color: #fca5a5;
+  margin-top: 6px;
+}
+
+@keyframes banner-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ── Right panel ── */
+
+.panel {
+  width: 210px;
+  background: #0f172a;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #e2e8f0;
+  border-left: 1px solid #1e293b;
+}
+
+/* ── Score card ── */
+
+.score-card {
+  background: #0d1117;
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #1e293b;
+}
+
+.score-label {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.score-turn {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fbbf24;
+  line-height: 1.1;
+}
+
+.score-divider {
+  height: 1px;
+  background: #1e293b;
+  margin: 10px 0;
+}
+
+.score-total {
+  font-size: 22px;
+  font-weight: 700;
+  color: #4ade80;
+  line-height: 1.1;
+}
+
+.score-target-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-target-label {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.score-target-value {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.progress-track {
+  height: 4px;
+  background: #1e293b;
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 2px;
+  transition: width 0.4s ease-out;
+}
+
+/* ── Selection card ── */
+
+.selection-card {
+  background: #0d1117;
+  border-radius: 10px;
+  padding: 12px 14px;
+  flex: 1;
+  min-height: 60px;
+  border: 1px solid #1e293b;
+}
+
+.selection-label {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.selection-empty {
+  font-size: 12px;
+  color: #334155;
+}
+
+.combo-chip {
+  background: #172554;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 11px;
+  color: #93c5fd;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.combo-pts {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.selection-total-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #1e293b;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.selection-total-label {
+  color: #64748b;
+}
+
+.selection-total-value {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+/* ── Invalid selection warning ── */
+
+.selection-warning {
+  font-size: 10px;
+  color: #f87171;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* ── Buttons ── */
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  width: 100%;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.btn:active:not(.btn-disabled) {
+  transform: scale(0.97);
+}
+
+.btn-disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.btn-roll {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.btn-roll:hover:not(.btn-disabled) {
+  background: #2563eb;
+}
+
+.btn-roll.btn-disabled {
+  background: #0f1729;
+  color: #334155;
+}
+
+.btn-bank {
+  background: #15803d;
+  color: #fff;
+}
+
+.btn-bank:hover:not(.btn-disabled) {
+  background: #16a34a;
+}
+
+.btn-bank.btn-disabled {
+  background: #0a1f10;
+  color: #1a3a1a;
+}
+
+.btn-farkle {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.btn-farkle:hover {
+  background: #991b1b;
+}

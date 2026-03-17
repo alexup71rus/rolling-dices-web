@@ -56,6 +56,13 @@ async function loadDieAssets(): Promise<{
     const gltf = await gltfLoader.loadAsync('/models/dice.glb');
     const mesh = gltf.scene.children[0] as THREE.Mesh;
     geometry = mesh.geometry;
+    // GLB single-primitive has no groups — add 6 groups matching BoxGeometry face order
+    // (+X, -X, +Y, -Y, +Z, -Z), 6 indices per face
+    if (geometry.groups.length === 0) {
+      for (let f = 0; f < 6; f++) {
+        geometry.addGroup(f * 6, 6, f);
+      }
+    }
   } catch {
     geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
   }

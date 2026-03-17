@@ -16,7 +16,7 @@ export type TurnPhase =
   | 'rolling'      // animation playing
   | 'selecting'    // player choosing dice
   | 'farkle'       // farkle detected
-  | 'hot-dice'     // hot dice detected
+  | 'hot-dice'     // hot dice — treated as selecting in UI
   | 'ended';       // turn banked, next turn starting
 
 export interface GameSceneController {
@@ -54,6 +54,14 @@ export async function createGameSceneController(
     onPhaseChange(p);
   }
 
+  /** Resets emissive highlight on every die mesh. */
+  function clearAllHighlights() {
+    for (const entry of entries) {
+      const mats = Array.isArray(entry.mesh.material) ? entry.mesh.material : [entry.mesh.material];
+      mats.forEach((m: any) => { if (m.emissive) m.emissive.set(0x000000); });
+    }
+  }
+
   async function roll(activeMeshIndices: number[]) {
     if (currentPhase === 'rolling') return;
     setPhase('rolling');
@@ -87,10 +95,24 @@ export async function createGameSceneController(
       return;
     }
 
-    // Hot dice: check if all active dice are part of scoring combos
+    // Hot dice: all dice score — auto-commit them, reset, and go to selecting
     const localIndices = activeMeshIndices.map((_, i) => i);
     if (isHotDice(activeValues, localIndices)) {
-      setPhase('hot-dice');
+      // Select all active dice so commitPendingSelection picks them up
+      for (const mi of activeMeshIndices) {
+        const d = store.diceState.find(d => d.meshIndex === mi);
+        if (d) d.selected = true;
+      }
+      commitPendingSelection();
+      // All 6 dice are now set-aside; un-set-aside them for a fresh roll
+      for (const d of store.diceState) {
+        d.setAside = false;
+        d.selected = false;
+        d.value = 0;
+      }
+      for (const entry of entries) entry.mesh.visible = true;
+      clearAllHighlights();
+      setPhase('idle');
       return;
     }
 
@@ -101,17 +123,6 @@ export async function createGameSceneController(
     if (currentPhase !== 'selecting') return;
     const d = store.diceState.find(d => d.meshIndex === meshIndex);
     if (!d || d.setAside) return;
-
-    // Only allow toggling dice that are part of a valid combination
-    const activeValues = store.diceState.filter(d => !d.setAside).map(d => d.value);
-    const combos = detectCombinations(activeValues);
-    const scoringIndices = new Set(combos.flatMap(c => {
-      // Map local indices back to meshIndex space
-      const activeEntries = store.diceState.filter(s => !s.setAside);
-      return c.diceIndices.map(li => activeEntries[li].meshIndex);
-    }));
-
-    if (!scoringIndices.has(meshIndex)) return; // non-scoring die, ignore click
 
     d.selected = !d.selected;
 
@@ -136,13 +147,18 @@ export async function createGameSceneController(
     );
     const pts = selectedCombos.reduce((s, c) => s + c.points, 0);
     for (const d of store.diceState) {
-      if (d.selected) { d.setAside = true; d.selected = false; }
+      if (d.selected) {
+        d.setAside = true;
+        d.selected = false;
+        // Hide the 3D mesh for set-aside dice
+        entries[d.meshIndex].mesh.visible = false;
+      }
     }
     store.turnScore += pts;
   }
 
   function bankTurn() {
-    if (currentPhase !== 'selecting' && currentPhase !== 'hot-dice') return;
+    if (currentPhase !== 'selecting') return;
     commitPendingSelection();
     store.totalScore += store.turnScore;
     store.turnScore = 0;
@@ -150,11 +166,14 @@ export async function createGameSceneController(
     for (const d of store.diceState) {
       d.setAside = false; d.selected = false; d.value = 0; d.scoreContribution = 0;
     }
+    // Show all dice meshes again for the new turn
+    for (const entry of entries) entry.mesh.visible = true;
+    clearAllHighlights();
     if (store.totalScore >= store.target) {
       store.screen = 'win';
       return;
     }
-    setPhase('ended');
+    setPhase('idle');
   }
 
   function startNextTurn() {
@@ -163,15 +182,10 @@ export async function createGameSceneController(
       for (const d of store.diceState) {
         d.setAside = false; d.selected = false; d.value = 0; d.scoreContribution = 0;
       }
-    } else if (currentPhase === 'hot-dice') {
-      for (const d of store.diceState) {
-        d.setAside = false; d.selected = false; d.value = 0;
-      }
-    } else if (currentPhase === 'ended') {
-      for (const d of store.diceState) {
-        d.setAside = false; d.selected = false; d.value = 0; d.scoreContribution = 0;
-      }
     }
+    // Show all dice meshes again
+    for (const entry of entries) entry.mesh.visible = true;
+    clearAllHighlights();
     setPhase('idle');
   }
 

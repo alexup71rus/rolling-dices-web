@@ -19,30 +19,8 @@ export const SetupScreen = component$(() => {
     'normal': 6, 'biased-1': 0, 'biased-5': 0, 'lucky': 0, 'unlucky': 0,
   });
 
-  const nonNormal = () =>
+  const nonNormalCount =
     counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
-
-  const increment = (type: DieType) => {
-    if (type === 'normal') return;
-    if (nonNormal() >= 6) return;
-    counts[type]++;
-    counts['normal'] = 6 - nonNormal();
-  };
-
-  const decrement = (type: DieType) => {
-    if (type === 'normal') return;
-    if (counts[type] <= 0) return;
-    counts[type]--;
-    counts['normal'] = 6 - nonNormal();
-  };
-
-  const buildConfig = (): DieType[] => {
-    const config: DieType[] = [];
-    for (const { type } of DIE_TYPES) {
-      for (let i = 0; i < counts[type]; i++) config.push(type);
-    }
-    return config;
-  };
 
   const summaryIcons = () => {
     const icons: string[] = [];
@@ -90,14 +68,30 @@ export const SetupScreen = component$(() => {
               <div style="display:flex;align-items:center;gap:8px;">
                 <span
                   style={`font-size:18px;padding:0 6px;cursor:${type === 'normal' ? 'default' : 'pointer'};color:${type === 'normal' ? '#333' : '#4fc3f7'};`}
-                  onClick$={() => decrement(type)}
+                  onClick$={() => {
+                    if (type === 'normal') return;
+                    if (counts[type] <= 0) return;
+                    counts[type]--;
+                    const nextNonNormal =
+                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    counts['normal'] = 6 - nextNonNormal;
+                  }}
                 >−</span>
                 <span style={`font-size:16px;min-width:18px;text-align:center;color:${type === 'normal' ? '#555' : '#fff'};font-weight:bold;`}>
                   {counts[type]}
                 </span>
                 <span
-                  style={`font-size:18px;padding:0 6px;cursor:${type === 'normal' || nonNormal() >= 6 ? 'default' : 'pointer'};color:${type === 'normal' || (nonNormal() >= 6 && counts[type] === 0) ? '#333' : '#4fc3f7'};`}
-                  onClick$={() => increment(type)}
+                  style={`font-size:18px;padding:0 6px;cursor:${type === 'normal' || nonNormalCount >= 6 ? 'default' : 'pointer'};color:${type === 'normal' || (nonNormalCount >= 6 && counts[type] === 0) ? '#333' : '#4fc3f7'};`}
+                  onClick$={() => {
+                    if (type === 'normal') return;
+                    const currentNonNormal =
+                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    if (currentNonNormal >= 6) return;
+                    counts[type]++;
+                    const nextNonNormal =
+                      counts['biased-1'] + counts['biased-5'] + counts['lucky'] + counts['unlucky'];
+                    counts['normal'] = 6 - nextNonNormal;
+                  }}
                 >+</span>
               </div>
             </div>
@@ -113,7 +107,11 @@ export const SetupScreen = component$(() => {
         <button
           style="width:100%;padding:12px;font-size:14px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;"
           onClick$={() => {
-            store.diceConfig = buildConfig();
+            const config: DieType[] = [];
+            for (const { type } of DIE_TYPES) {
+              for (let i = 0; i < counts[type]; i++) config.push(type);
+            }
+            store.diceConfig = config;
             store.diceState = Array.from({ length: 6 }, (_, i) => ({
               value: 0, selected: false, setAside: false,
               scoreContribution: 0, dieType: store.diceConfig[i], meshIndex: i,

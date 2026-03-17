@@ -17,13 +17,13 @@ export async function initScene(canvas: HTMLCanvasElement): Promise<SceneRefs> {
   scene.background = new THREE.Color(0x87ceeb);
 
   const camera = new THREE.PerspectiveCamera(40, canvas.clientWidth / canvas.clientHeight, 0.1, 3000);
-  camera.position.set(0.3, 20, 5);
+  camera.position.set(0, 24, 3);
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
   renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
 
   const dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(3, 10, 5);
@@ -35,7 +35,11 @@ export async function initScene(canvas: HTMLCanvasElement): Promise<SceneRefs> {
   try {
     const loader = new GLTFLoader();
     const gltf = await loader.loadAsync('/models/board.glb');
-    gltf.scene.receiveShadow = true;
+    gltf.scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.receiveShadow = true;
+      }
+    });
     scene.add(gltf.scene);
   } catch {
     const planeMesh = new THREE.Mesh(

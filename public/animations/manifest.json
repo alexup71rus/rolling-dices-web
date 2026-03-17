@@ -1,1 +1,32 @@
-{}
+{
+  "1d": [
+    "anim_1d_001.json",
+    "anim_1d_002.json",
+    "anim_1d_003.json"
+  ],
+  "2d": [
+    "anim_2d_001.json",
+    "anim_2d_002.json",
+    "anim_2d_003.json"
+  ],
+  "3d": [
+    "anim_3d_001.json",
+    "anim_3d_002.json",
+    "anim_3d_003.json"
+  ],
+  "4d": [
+    "anim_4d_001.json",
+    "anim_4d_002.json",
+    "anim_4d_003.json"
+  ],
+  "5d": [
+    "anim_5d_001.json",
+    "anim_5d_002.json",
+    "anim_5d_003.json"
+  ],
+  "6d": [
+    "anim_6d_001.json",
+    "anim_6d_002.json",
+    "anim_6d_003.json"
+  ]
+}

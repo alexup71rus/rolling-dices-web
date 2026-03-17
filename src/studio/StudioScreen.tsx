@@ -1,10 +1,10 @@
 // src/studio/StudioScreen.tsx
-import { $, component$, useSignal, useVisibleTask$ } from '@builder.io/qwik';
+import { $, component$, noSerialize, type NoSerialize, useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import type { StudioSceneHandle } from './StudioScene';
 
 export const StudioScreen = component$(() => {
   const canvasRef = useSignal<HTMLCanvasElement>();
-  const sceneHandle = useSignal<StudioSceneHandle | null>(null);
+  const sceneHandle = useSignal<NoSerialize<StudioSceneHandle> | null>(null);
   const diceCount = useSignal(2);
   const isRecording = useSignal(false);
   const status = useSignal('');
@@ -17,11 +17,16 @@ export const StudioScreen = component$(() => {
     } catch { /* ignore */ }
   });
 
-  useVisibleTask$(async () => {
+  useVisibleTask$(async ({ cleanup }) => {
     if (!canvasRef.value) return;
     const { initStudioScene } = await import('./StudioScene');
-    sceneHandle.value = await initStudioScene(canvasRef.value);
+    sceneHandle.value = noSerialize(await initStudioScene(canvasRef.value));
     await refreshLibrary();
+
+    cleanup(() => {
+      sceneHandle.value?.dispose?.();
+      sceneHandle.value = null;
+    });
   });
 
   return (

@@ -1,5 +1,4 @@
 // src/studio/StudioScene.ts
-import * as THREE from 'three';
 import { initScene, disposeScene } from '../scene/sceneSetup';
 import { createDiceEntries, syncMeshesToBodies, type DiceMeshEntry } from '../scene/DiceRenderer';
 import { AnimationRecorder } from '../animation/AnimationRecorder';
@@ -45,11 +44,13 @@ export async function initStudioScene(canvas: HTMLCanvasElement): Promise<Studio
     });
   }
 
-  const clock = new THREE.Clock();
+  let lastTime = performance.now();
 
   function animate() {
     animFrameId = requestAnimationFrame(animate);
-    const dt = clock.getDelta();
+    const now = performance.now();
+    const dt = Math.max(0, (now - lastTime) / 1000);
+    lastTime = now;
     world.step(1 / 60, dt, 3);
     syncMeshesToBodies(entries);
 
