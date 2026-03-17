@@ -1,38 +1,10 @@
-# Qwik + Vite
+# Rolling Dices Web 🎲
 
-## Qwik in CSR mode
+Браузерное приложение с 3D-кубиками. Два режима:
 
-This starter is using a pure CSR (Client Side Rendering) mode. This means, that the application is fully bootstrapped in the browser. Most of Qwik innovations however take advantage of SSR (Server Side Rendering) mode.
+- **Зонк** — полноценная игра с подсчётом очков, комбинациями и фарклами
+- **Бросок кубиков** — простой бросок 1–6 кубиков для любой настольной игры
 
-```ts
-export default defineConfig({
-  plugins: [
-    qwikVite({
-      csr: true,
-    }),
-  ],
-})
-```
+Stack: Qwik + Three.js + Cannon-es + TypeScript + Vite (CSR)
 
-Use `npm create qwik@latest` to create a full production ready Qwik application, using SSR and [QwikCity](https://qwik.dev/docs/qwikcity/), our server-side metaframwork.
-
-## Usage
-
-```bash
-$ npm install # or pnpm install or yarn install
-```
-
-Learn more on the [Qwik Website](https://qwik.dev) and join our community on our [Discord](https://qwik.dev/chat)
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
+Основное отличие этого приложения в том, что тут кубики физично разлетаются, при этом мы точно знаем какой стороной выпадут кубики.

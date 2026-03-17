@@ -50,6 +50,18 @@ export const WinScreen = component$(() => {
         >
           🔄 Играть снова <kbd style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;font-family:system-ui;font-weight:600;">N</kbd>
         </button>
+        <button
+          style="width:100%;padding:12px;font-size:14px;background:transparent;color:#a1a1aa;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;margin-top:10px;transition:all 0.2s ease;"
+          onMouseOver$={(e) => (e.target as HTMLElement).style.color='#fef3c7'}
+          onMouseOut$={(e) => (e.target as HTMLElement).style.color='#a1a1aa'}
+          onClick$={() => {
+            store.screen = 'mode-select';
+            store.totalScore = 0;
+            store.turnScore = 0;
+          }}
+        >
+          🎲 Выбрать режим
+        </button>
       </div>
     </div>
   );

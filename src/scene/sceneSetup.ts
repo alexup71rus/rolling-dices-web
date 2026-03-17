@@ -1,7 +1,6 @@
 // src/scene/sceneSetup.ts
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export interface SceneRefs {
   scene: THREE.Scene;
@@ -24,8 +23,7 @@ export async function initScene(canvas: HTMLCanvasElement): Promise<SceneRefs> {
   renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  // Убрали filmic tone mapping для производительности, вернули дефолт
-  
+
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
   dirLight.position.set(3, 10, 5);
   dirLight.castShadow = true;
@@ -35,7 +33,6 @@ export async function initScene(canvas: HTMLCanvasElement): Promise<SceneRefs> {
   scene.add(dirLight);
   scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-  // Board — force generated realistic procedural wood rather than GLB for better control
   try {
     const canvasTexture = document.createElement('canvas');
     canvasTexture.width = 2048;

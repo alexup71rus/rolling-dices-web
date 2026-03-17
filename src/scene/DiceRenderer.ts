@@ -1,7 +1,6 @@
 // src/scene/DiceRenderer.ts
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createRoundedBoxWithGroups } from './DiceGeometry';
 
 /** slot index → face value (authoritative mapping from diceLogic/dice.ts) */
@@ -140,7 +139,6 @@ async function loadDieAssets(): Promise<{
     materials = createFallbackMaterials();
   }
 
-  // Always use procedural rounded box for smooth edges instead of low-poly GLB
   const geometry = createRoundedBoxWithGroups(0.5, 0.08, 6);
 
   cachedDieGeometry = geometry;

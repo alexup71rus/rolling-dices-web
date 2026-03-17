@@ -16,12 +16,14 @@ export interface TurnState {
 }
 
 export interface GameStore {
-  screen: 'setup' | 'game' | 'win';
+  mode: 'zonk' | 'freeroll';
+  screen: 'mode-select' | 'setup' | 'game' | 'win' | 'freeroll-setup' | 'freeroll';
   target: 2000 | 3000 | 4000;
   diceConfig: DieType[];
   totalScore: number;
   turnScore: number;
   diceState: DiceRollState[];
+  freerollDiceCount: number;
 }
 
 export const GameContext = createContextId<GameStore>('game-store');

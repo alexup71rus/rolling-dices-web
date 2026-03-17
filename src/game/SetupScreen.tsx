@@ -83,9 +83,13 @@ export const SetupScreen = component$(() => {
         return;
       }
 
-      // Escape — clear row focus
+      // Escape — if row focused, clear focus; otherwise go back to mode-select
       if (key === 'Escape') {
-        focusedRow.value = -1;
+        if (focusedRow.value >= 0) {
+          focusedRow.value = -1;
+        } else {
+          store.screen = 'mode-select';
+        }
         return;
       }
     };
@@ -203,6 +207,15 @@ export const SetupScreen = component$(() => {
           }}
         >
           ▶ Бросить кости <kbd style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;font-family:system-ui;font-weight:600;">Enter</kbd>
+        </button>
+
+        <button
+          style="width:100%;padding:12px;font-size:14px;background:transparent;color:#a1a1aa;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;margin-top:10px;transition:all 0.2s ease;"
+          onMouseOver$={(e) => (e.target as HTMLElement).style.color='#fef3c7'}
+          onMouseOut$={(e) => (e.target as HTMLElement).style.color='#a1a1aa'}
+          onClick$={() => { store.screen = 'mode-select'; }}
+        >
+          ← Назад <kbd style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;font-family:system-ui;font-weight:600;">Esc</kbd>
         </button>
       </div>
     </div>
